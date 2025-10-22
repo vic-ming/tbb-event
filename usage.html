@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="icon" href="./assets/favicon.ico"> -->
+    <title>Event</title>
+    <!-- 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet"> 
+    
+    <!-- 共用樣式 -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <!-- header -->
+      <div class="header">
+        <img src="./assets/images/logo.svg" alt="logo">
+      </div>
+
+      <!-- content -->
+      <main class="main">
+        <div class="usage-title">臺灣企銀集章活動</div>
+        <div class="org-line"></div>
+        <div class="usage-content">
+          <div class="usage-content-title">
+            歡迎參觀2025台北國際金融博覽臺灣企銀攤位<br>
+            請參考以下步驟完成活動換精美贈品
+          </div>
+
+          <!-- 步驟 -->
+          <div class="content-step-list">
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟1</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">完成攤位體驗掃描QRcode</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟2</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">掃描成功後，獲得該攤位圖章</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟3</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">集滿4個圖章，完成集章活動</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟4</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">憑兌換畫面至服務台領取獎品!</div>
+            </div>
+          </div>
+
+          <!-- 備註 -->
+          <div class="content-ps">
+            <div class="ps-title">備註</div>
+            <div>
+              <p>1. 每支行動裝置只能體驗一次喔。</p>
+              <p>2. 請確認下方流程，來確保最佳操作效果：</p>
+              <ul>
+                <li>-建議以Chrome瀏覽器開啟</li>
+                <li>-點選同意開啟鏡頭權限</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <button class="common-button back-button" onclick="window.location.href='index.html'">開始蒐集</button>
+      </main>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="footer-line"> </div>
+      </div>
+      
+    </div>
+  </body>
+</html>
+<style>
+  
+  .main{
+   padding: 16px 24px;
+   display: flex;
+   gap: 16px;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+  }
+  .usage-title{
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    color: #DC5511;
+  }
+  .org-line{
+    width: 38px;
+    height: 4px;
+    background-color: #FAA500;
+  }
+  .usage-content{
+    color: #333333;
+    font-size: 16px;
+    text-align: left;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 257px);
+    padding-right: 8px;
+    margin-right: -8px;
+    padding-top: 8px;
+    width: 100%;
+  }
+  .usage-content-title{
+    border: 1px solid #DC5511;
+    padding: 4px;
+    border-radius: 4px;
+    color: #DC5511;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  
+  /* 自定義滾動條樣式 */
+  .usage-content::-webkit-scrollbar {
+    width: 2px;
+  }
+  
+  .usage-content::-webkit-scrollbar-track {
+    background: rgba(218, 55, 0, 0.2);
+    border-radius: 3px;
+  }
+  
+  .usage-content::-webkit-scrollbar-thumb {
+    background: #DC5511;
+    border-radius: 3px;
+  }
+  
+  .usage-content::-webkit-scrollbar-thumb:hover {
+    background: #B8440E;
+  }
+  
+  .back-button{
+    width: 240px;
+  }
+
+
+  .content-step-list{
+    display: flex;
+    flex-direction: column;
+    gap: 8;
+    margin-bottom: 24px;
+  }
+  .content-step-list .step-item{
+    display: flex;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .content-step-list .step-item .step-number{
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    gap: 4px;
+    color: #333333;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .content-step-list .step-item .step-text{
+    font-size: 18px;
+    font-weight: 500;
+    color: #333333;
+    flex: 1;
+    padding: 1.5px 0;
+  }
+
+  .content-ps{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    
+  }
+
+  .content-ps .ps-title{
+    border: 2px solid #333333;
+    padding: 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333333;
+    min-width: fit-content;
+  }
+  .content-ps p {
+    line-height: 1.5;
+    margin-bottom: 0;
+    font-size: 16px;
+    color: #333333;
+  }
+  .content-ps ul {
+    margin: 10px 0;
+    color: #333333;
+    line-height: 1.8;
+  }
+
+
+
+</style>

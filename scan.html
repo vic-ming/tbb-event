@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="icon" href="./assets/favicon.ico"> -->
+    <title>Event</title>
+    <!-- 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet"> 
+    
+    <!-- 共用樣式 -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+  </head>
+  <body>
+    <div class="container" style="background-color: transparent;">
+      <!-- header -->
+      <div class="header">
+        <img src="./assets/images/logo.svg" alt="logo">
+      </div>
+
+      <!-- content -->
+      <main class="main">
+        
+
+        <!-- 此處打開相機 -->
+        <div>
+          <img src="./assets/images/scan-line.svg" alt="">
+        </div>
+       
+      </main>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="back-btn-box">
+          <button class="common-button back-button" onclick="window.location.href='index.html'">OK</button>
+        </div>
+        <div class="footer-line"> </div>
+      </div>
+      
+    </div>
+  </body>
+</html>
+<style>
+  
+  .main{
+   display: flex;
+   gap: 16px;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+  }
+
+  .back-btn-box{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 96px;
+    min-height: 96px;
+    background-color: #FFEAD7;
+  }
+  .back-button{
+    width: 240px;
+  }
+</style>
