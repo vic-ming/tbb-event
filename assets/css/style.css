@@ -303,8 +303,112 @@ button {
   align-items: center;
 }
 
-#loadingScreen img {
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: loadingBreath 2s ease-in-out infinite;
+}
+
+.loading-text {
+  font-size: 15px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: #DC5511;
+  text-align: center;
+}
+.loading-svg {
   width: 240px;
+  animation: textFade 1.5s ease-in-out infinite;
+}
+
+/* 進度條容器 */
+.progress-container {
+  display: flex;
+  justify-content: center;
+  width: 240px;
+}
+
+/* 進度條背景 */
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background-color: #FFFBF8;
+  border: 2px solid #DC5511;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 進度條填充 */
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #DA3700 0%, rgba(218, 55, 0, 0) 100%);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+/* 進度條流動效果 */
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+
+/* Loading 動畫效果 */
+@keyframes loadingBreath {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+}
+
+/* Loading 文字淡入淡出動畫 */
+@keyframes textFade {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 進度條閃爍效果 */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 進度條完成時的脈衝效果 */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 85, 17, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(220, 85, 17, 0);
+  }
+}
+
+/* 當進度達到100%時的樣式 */
+.progress-fill.completed {
+  animation: pulse 1s ease-in-out infinite;
 }
 
 /* 主要內容樣式 */

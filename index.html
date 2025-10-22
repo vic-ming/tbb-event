@@ -24,7 +24,14 @@
 
       <!-- loading -->
       <main class="main" id="loadingScreen">
-        <img src="./assets/images/loading.svg" alt="loading">
+        <div class="loading-container">
+          <span class="loading-text">LOADING...</span>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </div>
       </main>
       
       <!-- content -->
@@ -450,12 +457,58 @@
         }
       }
 
+      // 進度條動畫控制
+      function animateProgress() {
+        const progressFill = document.getElementById('progressFill');
+        let progress = 0;
+        
+        const interval = setInterval(() => {
+          progress += Math.random() * 15 + 5; // 隨機增加 5-20%
+          
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            // 添加完成動畫效果
+            if (progressFill) {
+              progressFill.classList.add('completed');
+            }
+          }
+          
+          // 更新進度條寬度
+          if (progressFill) {
+            progressFill.style.width = progress + '%';
+          }
+        }, 150); // 每150ms更新一次
+        
+        return interval;
+      }
+
       // 頁面載入完成後初始化
       document.addEventListener('DOMContentLoaded', function() {
+        // 開始進度條動畫
+        const progressInterval = animateProgress();
+        
         // 3秒後顯示主要內容
         setTimeout(() => {
-          showMainContent();
-          initializeStamps();
+          // 確保進度條到達100%
+          const progressFill = document.getElementById('progressFill');
+          const progressText = document.getElementById('progressText');
+          
+          if (progressFill) {
+            progressFill.style.width = '100%';
+          }
+          if (progressText) {
+            progressText.textContent = '100%';
+          }
+          
+          // 清除進度動畫
+          clearInterval(progressInterval);
+          
+          // 短暫延遲後切換到主要內容
+          setTimeout(() => {
+            showMainContent();
+            initializeStamps();
+          }, 300);
         }, 3000);
       });
 
