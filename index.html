@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- <link rel="icon" href="./assets/favicon.ico"> -->
     <title>Event</title>
     <!-- 字體 -->
@@ -21,6 +21,18 @@
         <img src="./assets/images/logo.svg" alt="logo">
       </div>
 
+      <!-- Cookie 同意區塊 -->
+      <div class="cookie-consent" id="cookieConsent" style="display: none;">
+        <div class="cookie-content">
+          <p class="cookie-text">
+            為提升您的使用體驗，本網站使用Cookies分析技術。若繼續閱覽本網站內容，即表示您同意我們使用Cookies。關於更多Cookies資訊，請閱讀我們的<a href="privacy.html" class="cookie-link">隱私權政策</a>。
+          </p>
+          <div class="cookie-buttons">
+            <button class="cookie-button cookie-button-disagree" onclick="handleCookieDisagree()">不同意</button>
+            <button class="cookie-button cookie-button-accept" onclick="handleCookieAccept()">我接受</button>
+          </div>
+        </div>
+      </div>
 
       <!-- loading -->
       <main class="main" id="loadingScreen">
@@ -113,8 +125,8 @@
             </div>
           </div>
           <div style="display: flex; gap: 12px;">
+            <button class="popup-button" onclick="showFinishPopup()" style="flex: 1;">兌換</button>
             <button class="popup-button" onclick="closePopup()" style="flex: 1;">取消</button>
-            <button class="popup-button" onclick="showFinishPopup()" style="flex: 1;">去兌換</button>
           </div>
         </div>
       </div>
@@ -146,7 +158,7 @@
       <!-- 圖章收集彈窗 -->
       <div class="popup-overlay" id="stampCollectedPopup">
         <div class="popup-content stamp-popup">
-          <h2 class="popup-title">本圖章已蒐集</h2>
+          <h2 class="popup-title yellow">獲得新圖章</h2>
           <div class="stamp-icon">
             <img id="collectedStampImage" src="" alt="collected stamp">
           </div>
@@ -154,6 +166,11 @@
           <p class="stamp-message">點擊<span class="ok-highlight">【OK】</span>後，請勿關閉或跳出網頁，四關闖關完成即可兌換禮物喔！</p>
           <button class="popup-button stamp-ok-button" onclick="onStampCollected()">OK</button>
         </div>
+      </div>
+
+      <!-- 提示不可橫向 -->
+      <div class="popup-overlay" id="upright">
+        <img src="./assets/images/upright.svg" alt="upright">
       </div>
 
 
@@ -170,14 +187,20 @@
           // 為所有彈窗添加背景點擊關閉功能
           document.addEventListener('click', (e) => {
             if (e.target.classList.contains('popup-overlay')) {
-              this.closePopup();
+              // upright 彈窗不允許點擊關閉，需要旋轉裝置
+              if (this.activePopup !== 'upright') {
+                this.closePopup();
+              }
             }
           });
 
           // ESC 鍵關閉彈窗
           document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && this.activePopup) {
-              this.closePopup();
+              // upright 彈窗不允許ESC關閉
+              if (this.activePopup !== 'upright') {
+                this.closePopup();
+              }
             }
           });
         }
@@ -329,7 +352,11 @@
         }
 
         // 檢查是否已經收集過這個圖章
-        if (collectedStamps.includes(eventId)) {
+        const isAlreadyCollected = collectedStamps.includes(eventId);
+        
+        // 如果已經收集過，只顯示彈窗提示
+        if (isAlreadyCollected) {
+          showStampCollectedPopup(eventId, true); // 傳入 true 表示已收集
           return;
         }
         
@@ -340,7 +367,7 @@
         updateEventDisplay(eventId);
 
         // 顯示收集成功彈窗
-        showStampCollectedPopup(eventId);
+        showStampCollectedPopup(eventId, false); // 傳入 false 表示新收集
 
         // 檢查是否集滿所有圖章
         if (collectedStamps.length >= totalStamps) {
@@ -364,7 +391,7 @@
       }
 
       // 顯示圖章收集彈窗
-      function showStampCollectedPopup(eventId) {
+      function showStampCollectedPopup(eventId, isAlreadyCollected = false) {
         // 根據圖章ID設置對應的圖片
         const stampImage = document.getElementById('collectedStampImage');
         if (stampImage) {
@@ -375,6 +402,12 @@
         const stampSubtitle = document.getElementById('stampSubtitle');
         if (stampSubtitle && stampTitles[eventId]) {
           stampSubtitle.textContent = stampTitles[eventId];
+        }
+        
+        // 根據是否已收集來設置彈窗標題
+        const popupTitle = document.querySelector('#stampCollectedPopup .popup-title');
+        if (popupTitle) {
+          popupTitle.textContent = isAlreadyCollected ? '本圖章已蒐集' : '獲得新圖章';
         }
         
         showPopup('stampCollectedPopup');
@@ -441,6 +474,56 @@
         updateButtonDisplay();
       }
 
+      // Cookie 同意相關函數
+      function showCookieConsent() {
+        // todo: 為示範先寫死，之後再改為從 cookie 中檢查
+        // 檢查是否已經同意過 cookie
+        // const cookieConsent = localStorage.getItem('cookieConsent');
+        // if (!cookieConsent) {
+          const cookieConsentBar = document.getElementById('cookieConsent');
+          if (cookieConsentBar) {
+            // 先設置 display
+            cookieConsentBar.style.display = 'block';
+            document.body.classList.add('has-cookie-consent');
+            
+            // 等待一帧后再添加動畫類，確保初始狀態被渲染
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                cookieConsentBar.classList.add('showing');
+              }, 10);
+            });
+          }
+        // }
+      }
+
+      function handleCookieAccept() {
+        // 保存同意狀態
+        localStorage.setItem('cookieConsent', 'accepted');
+        hideCookieConsent();
+      }
+
+      function handleCookieDisagree() {
+        // 保存不同意狀態
+        localStorage.setItem('cookieConsent', 'disagreed');
+        hideCookieConsent();
+      }
+
+      function hideCookieConsent() {
+        const cookieConsentBar = document.getElementById('cookieConsent');
+        if (cookieConsentBar) {
+          // 移除 showing 類，添加 hiding 類觸發動畫
+          cookieConsentBar.classList.remove('showing');
+          cookieConsentBar.classList.add('hiding');
+          
+          // 等待動畫完成後隱藏元素
+          setTimeout(() => {
+            cookieConsentBar.style.display = 'none';
+            cookieConsentBar.classList.remove('hiding');
+            document.body.classList.remove('has-cookie-consent');
+          }, 400); // 與 CSS 中的 transition 時間一致
+        }
+      }
+
       // 顯示主要內容
       function showMainContent() {
         const loadingScreen = document.getElementById('loadingScreen');
@@ -483,10 +566,72 @@
         return interval;
       }
 
+      // 判斷是否為行動裝置
+      function isMobileDevice() {
+        // 檢查螢幕寬度是否小於等於 768px (通常是平板以下設備)
+        if (window.innerWidth <= 768) {
+          return true;
+        }
+        // 使用 User Agent 檢查是否為常見的移動設備
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+        return mobileRegex.test(userAgent);
+      }
+
+      // 橫向/直向檢測函數
+      function checkOrientation() {
+        const uprightPopup = document.getElementById('upright');
+        if (uprightPopup) {
+          // 只對行動裝置進行判斷
+          if (!isMobileDevice()) {
+            // PC 設備不顯示 upright 彈窗，確保它是隱藏的
+            uprightPopup.style.display = 'none';
+            popupManager.activePopup = null;
+            return;
+          }
+          
+          // 檢查是否為橫向 (寬度大於高度)
+          const isLandscape = window.innerWidth > window.innerHeight;
+          
+          if (isLandscape) {
+            // 橫向時顯示提示
+            uprightPopup.style.display = 'flex';
+            popupManager.activePopup = 'upright';
+            // 隱藏其他內容
+            const mainContent = document.getElementById('mainContent');
+            const footer = document.getElementById('footer');
+            if (mainContent) mainContent.style.display = 'none';
+            if (footer) footer.style.display = 'none';
+          } else {
+            // 直向時隱藏提示並恢復內容
+            if (popupManager.activePopup === 'upright') {
+              uprightPopup.style.display = 'none';
+              popupManager.activePopup = null;
+              
+              // 恢復主要內容顯示
+              const mainContent = document.getElementById('mainContent');
+              const footer = document.getElementById('footer');
+              if (mainContent) mainContent.style.display = 'flex';
+              if (footer) footer.style.display = 'flex';
+            }
+          }
+        }
+      }
+
       // 頁面載入完成後初始化
       document.addEventListener('DOMContentLoaded', function() {
         // 開始進度條動畫
         const progressInterval = animateProgress();
+        
+        // 檢查初始方向
+        checkOrientation();
+        
+        // 監聽方向變化
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', function() {
+          // 方向變化後稍微延遲再檢查，確保尺寸已更新
+          setTimeout(checkOrientation, 100);
+        });
         
         // 3秒後顯示主要內容
         setTimeout(() => {
@@ -508,6 +653,8 @@
           setTimeout(() => {
             showMainContent();
             initializeStamps();
+            checkOrientation(); // 再次檢查方向
+            showCookieConsent(); // 顯示 Cookie 同意區塊
           }, 300);
         }, 3000);
       });
