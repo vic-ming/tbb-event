@@ -419,7 +419,7 @@ button {
 
 /* 主要內容樣式 */
 #mainContent {
-  display: none;
+  /* display: none; */
 }
 
 /* 橫向提示彈窗樣式 */
