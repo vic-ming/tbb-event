@@ -28,7 +28,6 @@
             為提升您的使用體驗，本網站使用Cookies分析技術。若繼續閱覽本網站內容，即表示您同意我們使用Cookies。關於更多Cookies資訊，請閱讀我們的<a href="privacy.html" class="cookie-link">隱私權政策</a>。
           </p>
           <div class="cookie-buttons">
-            <button class="cookie-button cookie-button-disagree" onclick="handleCookieDisagree()">不同意</button>
             <button class="cookie-button cookie-button-accept" onclick="handleCookieAccept()">我接受</button>
           </div>
         </div>
@@ -149,12 +148,6 @@
       function handleCookieAccept() {
         // 保存同意狀態
         localStorage.setItem('cookieConsent', 'accepted');
-        hideCookieConsent();
-      }
-
-      function handleCookieDisagree() {
-        // 保存不同意狀態
-        localStorage.setItem('cookieConsent', 'disagreed');
         hideCookieConsent();
       }
 
