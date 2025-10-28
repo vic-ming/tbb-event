@@ -17,7 +17,7 @@
   <body>
     <div class="container">
       <!-- header -->
-      <div class="header">
+      <div class="header" onclick="showNonActivityPopup()">
         <img src="./assets/images/logo.svg" alt="logo">
       </div>
 
@@ -168,6 +168,18 @@
         </div>
       </div>
 
+      <!-- 掃描非活動QR code彈窗 -->
+      <div class="popup-overlay" id="nonActivityPopup">
+        <div class="popup-content">
+          <button class="popup-close" onclick="closePopup()">×</button>
+          <h2 class="popup-title">請掃描活動QRcode</h2>
+          <div class="popup-content-box">
+            <p class="popup-message">請收集4個指定攤位的圖章來兌換獎品吧! </p>
+          </div>
+           <button class="popup-button" onclick="closeNonActivityPopup()">OK</button>
+        </div>
+      </div>
+
       <!-- 提示不可橫向 -->
       <div class="popup-overlay" id="upright">
         <img src="./assets/images/upright.svg" alt="upright">
@@ -302,6 +314,15 @@
       }
 
       function closeRedeemedPopup() {
+        closePopup();
+      }
+
+      // 掃描非活動QR code彈窗相關函數
+      function showNonActivityPopup() {
+        showPopup('nonActivityPopup');
+      }
+
+      function closeNonActivityPopup() {
         closePopup();
       }
 
