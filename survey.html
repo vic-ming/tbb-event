@@ -13,6 +13,115 @@
 
     <!-- 共用樣式 -->
     <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!-- 本頁樣式 -->
+    <style>
+      /* 題目較長，內容靠上並可捲動 */
+      .survey-main{
+        justify-content: flex-start;
+        overflow-y: auto;
+      }
+
+      .survey-title{
+        font-size: 32px;
+        font-weight: 700;
+        text-align: center;
+        color: #527ACC;
+      }
+
+      .survey-intro{
+        color: #666;
+        font-size: 20px;
+        text-align: left;
+        line-height: 1.6;
+      }
+
+      .survey-list{
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+      }
+
+      .survey-item{
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .survey-question{
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        color: #666;
+        font-size: 20px;
+        line-height: 1.5;
+      }
+
+      .survey-number{
+        font-weight: 700;
+        color: #666;
+      }
+
+      .survey-angle{
+        width: 10px;
+        margin-top: 10px;
+      }
+
+      .survey-question-text{
+        flex: 1;
+      }
+
+      .survey-options{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding-left: 30px;
+      }
+
+      .survey-option{
+        padding: 8px 12px;
+        font-family: inherit;
+        font-size: 18px;
+        color: #527ACC;
+        background-color: #FFFFFF;
+        border: 2px solid #527ACC;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+
+      .survey-option.selected{
+        color: #FFFFFF;
+        background-color: #527ACC;
+      }
+
+      .survey-textarea{
+        width: calc(100% - 30px);
+        padding: 8px 12px;
+        font-family: inherit;
+        font-size: 18px;
+        color: #333333;
+        background-color: #FFFFFF;
+        border: 2px solid #527ACC;
+        border-radius: 8px;
+        outline: none;
+        resize: vertical;
+        box-sizing: border-box;
+        margin-left: 30px;
+      }
+
+      .survey-error{
+        color: #DA3700;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .survey-submit{
+        width: 240px;
+        margin: 8px auto 24px;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -23,7 +132,7 @@
       </div>
 
       <!-- content -->
-      <main class="main" id="mainContent">
+      <main class="main page-main survey-main" id="mainContent">
         <div class="survey-title">滿意度調查問卷</div>
         <div class="survey-intro">
           感謝您參觀教育部主題館，為提升我們的服務品質，懇請您撥冗填寫本問卷，您的意見將作為未來改進的重要參考。
@@ -34,7 +143,7 @@
 
         <p class="survey-error" id="surveyError" style="display: none;">尚有題目未作答，請完成後再送出</p>
 
-        <button class="common-button survey-submit" onclick="submitSurvey()">送出</button>
+        <button class="common-button survey-submit" id="surveySubmit" onclick="submitSurvey()">送出</button>
       </main>
 
       <!-- footer -->
@@ -44,11 +153,7 @@
 
     </div>
 
-    <!-- 提示不可橫向 -->
-    <div class="popup-overlay" id="upright">
-      <img src="./assets/images/upright.svg" alt="upright">
-    </div>
-
+    <script src="./assets/js/app.js"></script>
     <script>
       // ============================================================
       // 問卷題目設定（增修本陣列，畫面會自動產生）
@@ -192,6 +297,14 @@
         if (error) error.style.display = 'none';
       }
 
+      function showError(message) {
+        const error = document.getElementById('surveyError');
+        if (!error) return;
+
+        error.textContent = message;
+        error.style.display = 'block';
+      }
+
       // 該題是否已作答
       function isAnswered(question) {
         const answer = answers[question.id];
@@ -210,8 +323,7 @@
         });
 
         if (unanswered.length > 0) {
-          const error = document.getElementById('surveyError');
-          if (error) error.style.display = 'block';
+          showError('尚有題目未作答，請完成後再送出');
 
           // 捲動到第一題未作答的題目
           const firstIndex = surveyQuestions.indexOf(unanswered[0]);
@@ -222,171 +334,36 @@
           return;
         }
 
-        // todo: 之後改為送到後端，目前僅記錄於本機
-        localStorage.setItem('surveyCompleted', 'true');
-        localStorage.setItem('surveyAnswers', JSON.stringify(answers));
+        const button = document.getElementById('surveySubmit');
+        if (button) button.disabled = true;
 
-        // 回主畫面並帶出「前往服務臺」彈窗
-        window.location.href = 'event-list.html?survey=done';
+        sendAnswers(answers)
+          .then(() => {
+            Progress.setSurveyDone(answers);
+
+            // 回主畫面並帶出「前往服務臺」彈窗
+            window.location.href = 'event-list.html?survey=done';
+          })
+          .catch(() => {
+            showError('送出失敗，請稍後再試');
+            if (button) button.disabled = false;
+          });
       }
 
-      // 判斷是否為行動裝置
-      function isMobileDevice() {
-        if (window.innerWidth <= 768) {
-          return true;
-        }
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-        return mobileRegex.test(userAgent);
-      }
+      // 回傳作答內容；SURVEY_ENDPOINT 尚未設定時直接視為成功（僅存本機）
+      function sendAnswers(payload) {
+        if (!SURVEY_ENDPOINT) return Promise.resolve();
 
-      // 橫向/直向檢測
-      function checkOrientation() {
-        const uprightPopup = document.getElementById('upright');
-        const mainContent = document.getElementById('mainContent');
-        if (!uprightPopup) return;
-
-        if (!isMobileDevice()) {
-          uprightPopup.style.display = 'none';
-          return;
-        }
-
-        const isLandscape = window.innerWidth > window.innerHeight;
-
-        if (isLandscape) {
-          uprightPopup.style.display = 'flex';
-          if (mainContent) mainContent.style.display = 'none';
-        } else {
-          uprightPopup.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'flex';
-        }
-      }
-
-      // 頁面載入完成後初始化
-      document.addEventListener('DOMContentLoaded', function() {
-        renderQuestions();
-
-        checkOrientation();
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', function() {
-          setTimeout(checkOrientation, 100);
+        return fetch(SURVEY_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(response => {
+          if (!response.ok) throw new Error('survey submit failed');
         });
-      });
+      }
+
+      document.addEventListener('DOMContentLoaded', renderQuestions);
     </script>
   </body>
 </html>
-<style>
-
-  .main{
-   padding: 16px 24px;
-   display: flex;
-   gap: 16px;
-   flex-direction: column;
-   justify-content: flex-start;
-   align-items: center;
-   overflow-y: auto;
-  }
-
-  .survey-title{
-    font-size: 32px;
-    font-weight: 700;
-    text-align: center;
-    color: #527ACC;
-  }
-
-  .survey-intro{
-    color: #666;
-    font-size: 20px;
-    text-align: left;
-    line-height: 1.6;
-  }
-
-  .survey-list{
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    width: 100%;
-  }
-
-  .survey-item{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .survey-question{
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    color: #666;
-    font-size: 20px;
-    line-height: 1.5;
-  }
-
-  .survey-number{
-    font-weight: 700;
-    color: #666;
-  }
-
-  .survey-angle{
-    width: 10px;
-    margin-top: 10px;
-  }
-
-  .survey-question-text{
-    flex: 1;
-  }
-
-  .survey-options{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-left: 30px;
-  }
-
-  .survey-option{
-    flex: 1 1 calc(50% - 8px);
-    min-width: calc(50% - 8px);
-    padding: 8px 12px;
-    font-family: inherit;
-    font-size: 18px;
-    color: #527ACC;
-    background-color: #FFFFFF;
-    border: 2px solid #527ACC;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .survey-option.selected{
-    color: #FFFFFF;
-    background-color: #527ACC;
-  }
-
-  .survey-textarea{
-    width: calc(100% - 30px);
-    padding: 8px 12px;
-    font-family: inherit;
-    font-size: 18px;
-    color: #333333;
-    background-color: #FFFFFF;
-    border: 2px solid #527ACC;
-    border-radius: 8px;
-    outline: none;
-    resize: vertical;
-    box-sizing: border-box;
-    margin-left: 30px;
-  }
-
-  .survey-error{
-    color: #DA3700;
-    font-size: 14px;
-    text-align: center;
-  }
-
-  .survey-submit{
-    width: 240px;
-    margin: 8px auto 24px;
-  }
-</style>

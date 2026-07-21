@@ -131,7 +131,7 @@ button {
 .event-container div{
   position: absolute;
 }
-.event-container img{
+.event-container .event-item img{
   width: 96px;
   height: 104px;
 }
@@ -169,6 +169,7 @@ button {
   position: absolute;
   width: 200px;
   left: calc(50% - 100px);
+  top: 20px;
 }
 
 /* 兌換獎品彈窗樣式 */
@@ -511,6 +512,15 @@ button {
   height: auto;
 }
 
+/* 行動裝置橫向時：只顯示橫向提示，其餘內容隱藏（由 Orientation.check 切換） */
+body.landscape-locked .container {
+  display: none;
+}
+
+body.landscape-locked #upright {
+  display: flex;
+}
+
 /* Cookie 同意區塊樣式 */
 .cookie-consent {
   position: fixed;
@@ -626,4 +636,71 @@ body.has-cookie-consent .header {
   position: absolute;
   height: 106px;
   right: 0;
+}
+
+/* ---------- 內容頁共用（原本重複散落在各頁的 <style>） ---------- */
+
+/* 一般內容頁的 main 內距與間距 */
+.page-main{
+  padding: 16px 24px;
+  gap: 16px;
+  align-items: center;
+}
+
+/* 標題底下的短橫線 */
+.org-line{
+  width: 38px;
+  height: 4px;
+  background-color: #78B2DA;
+}
+
+.back-button{
+  width: 240px;
+}
+
+/* ---------- 關卡內頁（event-1~4） ---------- */
+.event-main{
+  padding: 0 24px;
+  align-items: center;
+}
+.event-detail{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 327px;
+}
+.event-detail-img{
+  width: 256px;
+  height: auto;
+}
+.event-detail-step{
+  border: 1px solid #0373BC33;
+  background: #82CFF433;
+  padding: 8px;
+  border-radius: 8px;
+}
+.event-detail-step .step-item{
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+}
+.event-detail-step .step-item .step-number{
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  gap: 4px;
+  color: #666;
+  font-weight: 700;
+  font-size: 18px;
+}
+.event-detail-step .step-item .step-text{
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  flex: 1;
+  padding: 1.5px 0;
+}
+.event-detail-step .step-item .step-text span{
+  color: #D61518;
 }

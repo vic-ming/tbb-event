@@ -9,10 +9,123 @@
     <!-- 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet"> 
-    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+
     <!-- 共用樣式 -->
     <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!-- 本頁樣式 -->
+    <style>
+      .usage-title{
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        color: #527ACC;
+      }
+      .usage-content{
+        color: #333333;
+        font-size: 16px;
+        text-align: left;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: calc(100vh - 293px);
+        padding-right: 8px;
+        margin-right: -8px;
+        padding-top: 8px;
+        width: 100%;
+      }
+      .usage-content-title{
+        border: 1px solid #666;
+        padding: 4px 30.5px;
+        border-radius: 4px;
+        color: #666666;
+        font-size: 16px;
+        font-weight: 500;
+        text-align: left;
+        margin-bottom: 28px;
+      }
+
+      /* 自定義滾動條樣式 */
+      .usage-content::-webkit-scrollbar {
+        width: 2px;
+      }
+
+      .usage-content::-webkit-scrollbar-track {
+        background: #10495D33;
+        border-radius: 3px;
+      }
+
+      .usage-content::-webkit-scrollbar-thumb {
+        background: #666;
+        border-radius: 3px;
+      }
+
+      .usage-content::-webkit-scrollbar-thumb:hover {
+        background: #666;
+      }
+
+      .content-step-list{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .content-step-list .step-item{
+        display: flex;
+        gap: 4px;
+        align-items: flex-start;
+      }
+      .content-step-list .step-item .step-number{
+        display: flex;
+        align-items: center;
+        padding: 2px 4px;
+        gap: 4px;
+        color: #666;
+        font-weight: 700;
+        font-size: 18px;
+      }
+
+      .content-step-list .step-item .step-text{
+        font-size: 18px;
+        font-weight: 500;
+        color: #666;
+        flex: 1;
+        padding: 1.5px 0;
+      }
+
+      .content-ps{
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .content-ps .ps-title{
+        border: 2px solid #666;
+        padding: 0 6px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #666;
+        min-width: fit-content;
+      }
+      .content-ps p {
+        line-height: 1.5;
+        margin-bottom: 0;
+        font-size: 16px;
+        color: #666;
+      }
+      .content-ps ul {
+        margin: 10px 0;
+        color: #666;
+        line-height: 1.8;
+      }
+
+      .content-b-text{
+        font-weight: 500;
+        font-size: 14px;
+        color: #666;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -35,21 +148,9 @@
         </div>
       </div>
 
-      <!-- 請先同意 Cookie 彈窗 -->
-      <div class="popup-overlay" id="cookieWarningPopup" style="display: none;">
-        <div class="popup-content">
-          <button class="popup-close" onclick="closeCookieWarningPopup()">×</button>
-          <h2 class="popup-title">提醒</h2>
-          <div class="popup-content-box">
-            <p class="popup-message">請先同意 Cookie 政策以繼續使用本網站功能。</p>
-          </div>
-          <button class="popup-button" onclick="closeCookieWarningPopup()">OK</button>
-        </div>
-      </div>
-
       <!-- content -->
-      <main class="main" id="mainContent">
-        <div class="usage-title">臺灣企銀集章活動</div>
+      <main class="main page-main" id="mainContent">
+        <div class="usage-title">夢工場集章活動</div>
         <div class="org-line"></div>
         <div class="usage-content">
           <div class="usage-content-title">
@@ -70,14 +171,14 @@
                 <div>步驟2</div>
                 <img src="./assets/images/angle.svg" alt="angle">
               </div>
-              <div class="step-text">掃描成功後，獲得該攤位圖章</div>
+              <div class="step-text">掃描成功後，獲得該攤位印章</div>
             </div>
             <div class="step-item">
               <div class="step-number">
                 <div>步驟3</div>
                 <img src="./assets/images/angle.svg" alt="angle">
               </div>
-              <div class="step-text">集滿4個圖章，完成集章活動</div>
+              <div class="step-text">集滿4個印章，完成集章活動</div>
             </div>
             <div class="step-item">
               <div class="step-number">
@@ -102,237 +203,29 @@
           </div>
         </div>
         <div class="content-b-text">※教育部保留活動調整、異動或停止之權利</div>
-        <button class="common-button back-button" onclick="handleStartCollect()">開始蒐集</button>
+        <button class="common-button back-button" onclick="startCollect()">開始蒐集</button>
       </main>
 
       <!-- footer -->
       <div class="footer">
         <div class="footer-line"> </div>
       </div>
-      
+
     </div>
 
-    <script>
-      // Cookie 同意相關函數
-      function showCookieConsent() {
-        // 已同意過就不再顯示
-        if (hasAcceptedCookie()) {
-          return;
-        }
+    <!-- 請先同意 Cookie 彈窗 -->
+    <div class="popup-overlay" id="cookieWarningPopup">
+      <div class="popup-content">
+        <button class="popup-close" onclick="closePopup()">×</button>
+        <h2 class="popup-title">提醒</h2>
+        <div class="popup-content-box">
+          <p class="popup-message">請先同意 Cookie 政策以繼續使用本網站功能。</p>
+        </div>
+        <button class="popup-button" onclick="closePopup()">OK</button>
+      </div>
+    </div>
 
-        const cookieConsentBar = document.getElementById('cookieConsent');
-        if (cookieConsentBar) {
-          // 先設置 display
-          cookieConsentBar.style.display = 'block';
-          document.body.classList.add('has-cookie-consent');
-
-          // 等待一帧后再添加動畫類，確保初始狀態被渲染
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              cookieConsentBar.classList.add('showing');
-            }, 10);
-          });
-        }
-      }
-
-      function handleCookieAccept() {
-        // 保存同意狀態
-        localStorage.setItem('cookieConsent', 'accepted');
-        hideCookieConsent();
-      }
-
-      function handleCookieDisagree() {
-        // 不記錄狀態，下次進站仍會再次詢問
-        hideCookieConsent();
-      }
-
-      function hideCookieConsent() {
-        const cookieConsentBar = document.getElementById('cookieConsent');
-        if (cookieConsentBar) {
-          // 移除 showing 類，添加 hiding 類觸發動畫
-          cookieConsentBar.classList.remove('showing');
-          cookieConsentBar.classList.add('hiding');
-          
-          // 等待動畫完成後隱藏元素
-          setTimeout(() => {
-            cookieConsentBar.style.display = 'none';
-            cookieConsentBar.classList.remove('hiding');
-            document.body.classList.remove('has-cookie-consent');
-          }, 400); // 與 CSS 中的 transition 時間一致
-        }
-      }
-
-      // 檢查是否已同意 Cookie
-      function hasAcceptedCookie() {
-        const cookieConsent = localStorage.getItem('cookieConsent');
-        return cookieConsent === 'accepted';
-      }
-
-      // 顯示 Cookie 警告彈窗
-      function showCookieWarningPopup() {
-        const popup = document.getElementById('cookieWarningPopup');
-        if (popup) {
-          popup.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-        }
-      }
-
-      // 關閉 Cookie 警告彈窗
-      function closeCookieWarningPopup() {
-        const popup = document.getElementById('cookieWarningPopup');
-        if (popup) {
-          popup.style.display = 'none';
-          document.body.style.overflow = 'auto';
-        }
-      }
-
-      // 處理開始蒐集按鈕點擊
-      function handleStartCollect() {
-        // 檢查是否已同意 Cookie
-        if (!hasAcceptedCookie()) {
-          // 顯示警告彈窗
-          showCookieWarningPopup();
-        } else {
-          window.location.href = 'event-list.html';
-        }
-      }
-
-      // 頁面載入完成後初始化
-      document.addEventListener('DOMContentLoaded', function() {
-        showCookieConsent(); // 未同意過才會顯示 Cookie 同意區塊
-      });
-    </script>
+    <!-- Cookie 同意、彈窗、橫向偵測皆由 app.js 處理 -->
+    <script src="./assets/js/app.js"></script>
   </body>
 </html>
-<style>
-  
-  .main{
-   padding: 16px 24px;
-   display: flex;
-   gap: 16px;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
-  }
-  .usage-title{
-    font-size: 28px;
-    font-weight: 700;
-    text-align: center;
-    color: #527ACC;
-  }
-  .org-line{
-    width: 38px;
-    height: 4px;
-    background-color: #78B2DA;
-  }
-  .usage-content{
-    color: #333333;
-    font-size: 16px;
-    text-align: left;
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: calc(100vh - 293px);
-    padding-right: 8px;
-    margin-right: -8px;
-    padding-top: 8px;
-    width: 100%;
-  }
-  .usage-content-title{
-    border: 1px solid #666;
-    padding: 4px 30.5px;
-    border-radius: 4px;
-    color: #666666;
-    font-size: 16px;
-    font-weight: 500;
-    text-align: left;
-    margin-bottom: 28px;
-  }
-  
-  /* 自定義滾動條樣式 */
-  .usage-content::-webkit-scrollbar {
-    width: 2px;
-  }
-  
-  .usage-content::-webkit-scrollbar-track {
-    background: #10495D33;
-    border-radius: 3px;
-  }
-  
-  .usage-content::-webkit-scrollbar-thumb {
-    background: #666;
-    border-radius: 3px;
-  }
-  
-  .usage-content::-webkit-scrollbar-thumb:hover {
-    background: #666;
-  }
-  
-  .back-button{
-    width: 240px;
-  }
-
-
-  .content-step-list{
-    display: flex;
-    flex-direction: column;
-    gap: 8;
-    margin-bottom: 24px;
-  }
-  .content-step-list .step-item{
-    display: flex;
-    gap: 4px;
-    align-items: flex-start;
-  }
-  .content-step-list .step-item .step-number{
-    display: flex;
-    align-items: center;
-    padding: 2px 4px;
-    gap: 4px;
-    color: #666;
-    font-weight: 700;
-    font-size: 18px;
-  }
-
-  .content-step-list .step-item .step-text{
-    font-size: 18px;
-    font-weight: 500;
-    color: #666;
-    flex: 1;
-    padding: 1.5px 0;
-  }
-
-  .content-ps{
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    
-  }
-
-  .content-ps .ps-title{
-    border: 2px solid #666;
-    padding: 0 6px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #666;
-    min-width: fit-content;
-  }
-  .content-ps p {
-    line-height: 1.5;
-    margin-bottom: 0;
-    font-size: 16px;
-    color: #666;
-  }
-  .content-ps ul {
-    margin: 10px 0;
-    color: #666;
-    line-height: 1.8;
-  }
-
-
-  .content-b-text{
-    font-weight: 500;
-    font-size: 14px;
-    color: #666;
-  }
-</style>

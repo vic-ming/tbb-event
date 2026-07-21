@@ -9,8 +9,8 @@
     <!-- 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet"> 
-    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+
     <!-- 共用樣式 -->
     <link rel="stylesheet" href="./assets/css/style.css">
   </head>
@@ -39,22 +39,23 @@
         <div class="event-title">夢工場集章卡</div>
         <div class="event-text">集滿以下4枚印章，即可前往攤位服務臺兌換精美好禮1份！每人限兌換1次，數量有限，送完為止！</div>
         <div class="event-container">
-          <div class="event-item-1" onclick="goToEvent(1)">
+          <div class="event-item event-item-1" onclick="goToEvent(1)">
             <img src="./assets/images/event-1.png" alt="event">
           </div>
-          <div class="event-item-2" onclick="goToEvent(2)">
+          <div class="event-item event-item-2" onclick="goToEvent(2)">
             <img src="./assets/images/event-2.png" alt="event">
           </div>
-          <div class="event-item-3" onclick="goToEvent(3)">
+          <div class="event-item event-item-3" onclick="goToEvent(3)">
             <img src="./assets/images/event-3.png" alt="event">
           </div>
-          <div class="event-item-4" onclick="goToEvent(4)">
+          <div class="event-item event-item-4" onclick="goToEvent(4)">
             <img src="./assets/images/event-4.png" alt="event">
           </div>
+          <!-- 已領取 -->
+          <img class="rewarded" id="rewardedImage" src="./assets/images/rewarded.svg" alt="" style="display: none;">
         </div>
 
-        <!-- 已領取 -->
-        <img class="rewarded" id="rewardedImage" src="./assets/images/rewarded.svg" alt="" style="display: none;">
+        
       </main>
 
 
@@ -63,7 +64,7 @@
         <div class="footer-buttons"  id="footer" style="display: none;">
           <!-- 使用說明 -->
           <img class="usage-button" src="./assets/images/usage.svg" alt="event" onclick="window.location.href='description.html'">
-         
+
           <!-- 禮物按鈕（收集完成後顯示） -->
           <img class="gift-button" id="giftButton" src="./assets/images/gift.svg" alt="event" onclick="showRedeemPopup()" style="display: none;">
 
@@ -78,11 +79,8 @@
         <img class="cloud-2" src="./assets/images/cloud-2.png" alt="cloud">
         <img class="cloud-3" src="./assets/images/cloud-3.png" alt="cloud">
       </div>
-      
+
     </div>
-
-    
-
 
       <!-- 步驟1：完成問卷兌換獎品彈窗 -->
       <div class="popup-overlay" id="surveyPopup">
@@ -117,11 +115,11 @@
             <p class="popup-message">恭喜集滿4枚印章，<br>請前往服務臺出示本畫面兌換獎品</p>
             <div class="popup-input-group">
               <div class="popup-label">請交由服務人員輸入密碼</div>
-              <input class="popup-input" type="text" id="redeemPasswordInput" placeholder="請輸入密碼" autocomplete="off">
+              <input class="popup-input" type="password" id="redeemPasswordInput" placeholder="請輸入密碼" autocomplete="off" inputmode="numeric">
               <p class="popup-error" id="redeemPasswordError" style="display: none;">密碼錯誤，請重新輸入</p>
             </div>
           </div>
-          <button class="popup-button" onclick="goToRedeem()">兌換</button>
+          <button class="popup-button" id="redeemSubmitButton" onclick="goToRedeem()">兌換</button>
         </div>
       </div>
 
@@ -137,566 +135,177 @@
         </div>
       </div>
 
-      <!-- 圖章收集彈窗 -->
-      <div class="popup-overlay" id="stampCollectedPopup">
-        <div class="popup-content stamp-popup">
-          <h2 class="popup-title yellow">獲得新圖章</h2>
-          <div class="stamp-icon">
-            <img id="collectedStampImage" src="" alt="collected stamp">
-          </div>
-          <h3 class="stamp-subtitle" id="stampSubtitle"></h3>
-          <p class="stamp-message">點擊<span class="ok-highlight">【OK】</span>後，請勿關閉或跳出網頁，四關闖關完成即可兌換禮物喔！</p>
-          <button class="popup-button stamp-ok-button" onclick="onStampCollected()">OK</button>
-        </div>
-      </div>
-
-      <!-- 掃描非活動QR code彈窗 -->
-      <div class="popup-overlay" id="nonActivityPopup">
-        <div class="popup-content">
-          <button class="popup-close" onclick="closePopup()">×</button>
-          <h2 class="popup-title">請掃描活動QRcode</h2>
-          <div class="popup-content-box">
-            <p class="popup-message">請收集4個指定攤位的圖章來兌換獎品吧! </p>
-          </div>
-           <button class="popup-button" onclick="closeNonActivityPopup()">OK</button>
-        </div>
-      </div>
-
-      <!-- 提示不可橫向 -->
-      <div class="popup-overlay" id="upright">
-        <img src="./assets/images/upright.svg" alt="upright">
-      </div>
-
-
+    <script src="./assets/js/app.js"></script>
     <script>
-      // 統一的彈窗管理系統
-      class PopupManager {
-        constructor() {
-          this.activePopup = null;
-          this.redeemed = false;
-          this.init();
-        }
+      // ============================================================
+      // 集章卡主畫面
+      // 集章動作在關卡內頁（event-1~4）完成，本頁只負責呈現目前狀態
+      // ============================================================
 
-        init() {
-          // 為所有彈窗添加背景點擊關閉功能
-          document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('popup-overlay')) {
-              // upright 彈窗不允許點擊關閉，需要旋轉裝置
-              if (this.activePopup !== 'upright') {
-                this.closePopup();
-              }
-            }
-          });
-
-          // ESC 鍵關閉彈窗
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.activePopup) {
-              // upright 彈窗不允許ESC關閉
-              if (this.activePopup !== 'upright') {
-                this.closePopup();
-              }
-            }
-          });
-        }
-
-        // 顯示彈窗
-        showPopup(popupId) {
-          // 如果已有彈窗打開，先關閉
-          if (this.activePopup) {
-            this.closePopup();
-          }
-
-          const popup = document.getElementById(popupId);
-          if (popup) {
-            popup.style.display = 'flex';
-            this.activePopup = popupId;
-            
-            // 防止背景滾動
-            document.body.style.overflow = 'hidden';
-          }
-        }
-
-        // 關閉彈窗
-        closePopup() {
-          if (this.activePopup) {
-            const popup = document.getElementById(this.activePopup);
-            if (popup) {
-              popup.style.display = 'none';
-            }
-            this.activePopup = null;
-            
-            // 恢復背景滾動
-            document.body.style.overflow = 'auto';
-          }
-        }
-
-        // 關閉所有彈窗
-        closeAllPopups() {
-          const popups = document.querySelectorAll('.popup-overlay');
-          popups.forEach(popup => {
-            popup.style.display = 'none';
-          });
-          this.activePopup = null;
-          document.body.style.overflow = 'auto';
-        }
-
-        // 檢查是否有彈窗打開
-        hasActivePopup() {
-          return this.activePopup !== null;
-        }
-      }
-
-      // 創建全局彈窗管理器實例
-      const popupManager = new PopupManager();
-
-      // 統一的彈窗控制函數
-      function showPopup(popupId) {
-        popupManager.showPopup(popupId);
-      }
-
-      function closePopup() {
-        popupManager.closePopup();
-      }
-
-      function closeAllPopups() {
-        popupManager.closeAllPopups();
-      }
-
-      // 兌換流程：完成問卷 → 抵達服務臺 → 服務人員輸入密碼 → 兌換完成
+      // ---------- 兌換流程：完成問卷 → 抵達服務臺 → 服務人員輸入密碼 → 兌換完成 ----------
       function showRedeemPopup() {
-        if (popupManager.redeemed) {
-          showRedeemedPopup();
+        if (Progress.redeemed()) {
+          Popup.show('redeemedPopup');
           return;
         }
 
-        if (hasCompletedSurvey()) {
-          // 已填過問卷，直接進入前往服務臺步驟
-          showPopup('arrivePopup');
-        } else {
-          showPopup('surveyPopup');
-        }
+        // 已填過問卷就直接進入前往服務臺步驟
+        Popup.show(Progress.surveyDone() ? 'arrivePopup' : 'surveyPopup');
       }
 
-      function closeRedeemPopup() {
-        closePopup();
-      }
-
-      // 前往問卷頁
       function goToSurvey() {
         window.location.href = 'survey.html';
       }
 
       // 顯示密碼輸入彈窗
       function showRedeemPasswordPopup() {
-        showPopup('redeemPopup');
+        Popup.show('redeemPopup');
 
         // 每次開啟都清空輸入與錯誤訊息
-        const input = document.getElementById('redeemPasswordInput');
-        const error = document.getElementById('redeemPasswordError');
+        var input = document.getElementById('redeemPasswordInput');
+        var error = document.getElementById('redeemPasswordError');
         if (input) input.value = '';
         if (error) error.style.display = 'none';
       }
 
-      // todo: 目前密碼寫死在前端，之後改為呼叫後端驗證
-      const REDEEM_PASSWORD = '1234';
-
+      // 驗證密碼並完成兌換
       function goToRedeem() {
-        const input = document.getElementById('redeemPasswordInput');
-        const error = document.getElementById('redeemPasswordError');
-        const password = input ? input.value.trim() : '';
+        var input = document.getElementById('redeemPasswordInput');
+        var error = document.getElementById('redeemPasswordError');
+        var button = document.getElementById('redeemSubmitButton');
+        var password = input ? input.value.trim() : '';
 
-        if (password !== REDEEM_PASSWORD) {
-          if (error) error.style.display = 'block';
-          return;
-        }
+        // 驗證為非同步，先鎖住按鈕避免連點
+        if (button) button.disabled = true;
 
-        if (error) error.style.display = 'none';
-        closePopup();
+        Redeem.verify(password)
+          .then(function (isValid) {
+            if (!isValid) {
+              showRedeemError('密碼錯誤，請重新輸入');
+              return;
+            }
 
-        // 兌換完成，切換為已領取狀態
-        showRewardedDisplay();
+            if (error) error.style.display = 'none';
+            Popup.close();
+            markAsRedeemed();
+          })
+          .catch(function () {
+            // Web Crypto 需要 HTTPS 或 localhost，不支援時一律不放行
+            showRedeemError('此瀏覽器無法驗證密碼，請改用 HTTPS 開啟本頁');
+          })
+          .then(function () {
+            if (button) button.disabled = false;
+          });
       }
 
-      function showRedeemedPopup() {
-        showPopup('redeemedPopup');
+      function showRedeemError(message) {
+        var error = document.getElementById('redeemPasswordError');
+        if (!error) return;
+
+        error.textContent = message;
+        error.style.display = 'block';
       }
 
-      function closeRedeemedPopup() {
-        closePopup();
+      // 兌換完成，切換為已領取狀態
+      function markAsRedeemed() {
+        Progress.setRedeemed();
+
+        var rewardedImage = document.getElementById('rewardedImage');
+        if (rewardedImage) rewardedImage.style.display = 'block';
       }
 
-      // 掃描非活動QR code彈窗相關函數
-      function showNonActivityPopup() {
-        showPopup('nonActivityPopup');
-      }
+      // ---------- 集章卡狀態呈現 ----------
 
-      function closeNonActivityPopup() {
-        closePopup();
-      }
-
-      // 顯示已領取狀態
-      function showRewardedDisplay() {
-        // 顯示已領取圖片
-        popupManager.redeemed = true;
-        saveRedeemedState();
-        const rewardedImage = document.getElementById('rewardedImage');
-        if (rewardedImage) {
-          rewardedImage.style.display = 'block';
-        }
-
-      }
-
-      // 圖章收集狀態管理
-      let collectedStamps = []
-      const totalStamps = 4;
-
-      // 狀態保存（換頁到問卷 / 掃描頁後仍需保留進度）
-      const STORAGE_KEYS = {
-        stamps: 'collectedStamps',
-        survey: 'surveyCompleted',
-        redeemed: 'redeemed'
-      };
-
-      function saveStamps() {
-        localStorage.setItem(STORAGE_KEYS.stamps, JSON.stringify(collectedStamps));
-      }
-
-      function loadStamps() {
-        try {
-          const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.stamps));
-          collectedStamps = Array.isArray(saved) ? saved : [];
-        } catch (e) {
-          collectedStamps = [];
-        }
-      }
-
-      function hasCompletedSurvey() {
-        return localStorage.getItem(STORAGE_KEYS.survey) === 'true';
-      }
-
-      function saveRedeemedState() {
-        localStorage.setItem(STORAGE_KEYS.redeemed, 'true');
-      }
-
-      function loadRedeemedState() {
-        return localStorage.getItem(STORAGE_KEYS.redeemed) === 'true';
-      }
-
-      // 圖章文字對應關係
-      const stampTitles = {
-        1: '全民阻詐',
-        2: '金安研習營',
-        3: '打詐訓練室',
-        4: '防詐電話亭'
-      };
-
-      // 前往各關卡內頁（掃描集章）
+      // 前往各關卡內頁
       function goToEvent(eventId) {
         // 已兌換過就不再進入關卡
-        if (popupManager.redeemed) {
-          showRedeemedPopup();
+        if (Progress.redeemed()) {
+          Popup.show('redeemedPopup');
           return;
         }
-        window.location.href = `event-${eventId}.html`;
+        window.location.href = 'event-' + eventId + '.html';
       }
 
-      // 從內頁掃描完成返回時，依 query 參數集章
-      // 內頁掃描成功會導回 event-list.html?collect=N
-      function checkCollectFromScan() {
-        const params = new URLSearchParams(window.location.search);
-        const collectId = parseInt(params.get('collect'), 10);
-
-        // 清掉 query，避免重新整理又重複觸發
-        if (params.has('collect')) {
-          window.history.replaceState({}, '', window.location.pathname);
-        }
-
-        if (collectId >= 1 && collectId <= totalStamps) {
-          collectEvent(collectId);
-        }
-      }
-
-      // 圖章收集函數
-      function collectEvent(eventId) {
-        // 檢查是否已經兌換過
-        if (popupManager.redeemed) {
-          showRedeemedPopup();
-          return;
-        }
-
-        // 檢查是否已經收集過這個圖章
-        const isAlreadyCollected = collectedStamps.includes(eventId);
-        
-        // 如果已經收集過，只顯示彈窗提示
-        if (isAlreadyCollected) {
-          showStampCollectedPopup(eventId, true); // 傳入 true 表示已收集
-          return;
-        }
-        
-        // 添加到已收集列表
-        collectedStamps.push(eventId);
-        saveStamps();
-
-        // 更新UI顯示
-        updateEventDisplay(eventId);
-
-        // 顯示收集成功彈窗
-        showStampCollectedPopup(eventId, false); // 傳入 false 表示新收集
-
-        // 檢查是否集滿所有圖章
-        if (collectedStamps.length >= totalStamps) {
-          // 切換按鈕顯示
-          switchToGiftButton();
-        }
-      }
-
-      // 更新事件顯示狀態
-      function updateEventDisplay(eventId) {
-        const eventItem = document.querySelector(`.event-item-${eventId}`);
-        if (eventItem) {
-          const img = eventItem.querySelector('img');
-          if (img) {
-            // 切換到active狀態的圖片
-            const currentSrc = img.src;
-            const activeSrc = currentSrc.replace('.png', '-active.png');
-            img.src = activeSrc;
-          }
-        }
-      }
-
-      // 顯示圖章收集彈窗
-      function showStampCollectedPopup(eventId, isAlreadyCollected = false) {
-        // 根據圖章ID設置對應的圖片
-        const stampImage = document.getElementById('collectedStampImage');
-        if (stampImage) {
-          stampImage.src = `./assets/images/event-${eventId}-img.svg`;
-        }
-        
-        // 根據圖章ID設置對應的文字標題
-        const stampSubtitle = document.getElementById('stampSubtitle');
-        if (stampSubtitle && stampTitles[eventId]) {
-          stampSubtitle.textContent = stampTitles[eventId];
-        }
-        
-        // 根據是否已收集來設置彈窗標題
-        const popupTitle = document.querySelector('#stampCollectedPopup .popup-title');
-        if (popupTitle) {
-          popupTitle.textContent = isAlreadyCollected ? '本圖章已蒐集' : '獲得新圖章';
-        }
-        
-        showPopup('stampCollectedPopup');
-      }
-
-      // 圖章收集彈窗的OK按鈕處理
-      function onStampCollected() {
-        closePopup();
-        // 可以在這裡添加其他邏輯，比如音效、動畫等
-      }
-
-      // 禮物按鈕：集滿才顯示
-      function switchToGiftButton() {
-        const giftButton = document.getElementById('giftButton');
-        if (giftButton) {
-          giftButton.style.display = 'block';
-        }
-      }
-
-      // 更新按鈕顯示狀態
-      function updateButtonDisplay() {
-        const giftButton = document.getElementById('giftButton');
-        if (giftButton) {
-          giftButton.style.display = collectedStamps.length >= totalStamps ? 'block' : 'none';
-        }
-      }
-
-      // 檢查是否已兌換
-      function checkRedeemedState() {
-        if (!loadRedeemedState()) {
-          return;
-        }
-
-        popupManager.redeemed = true;
-        const rewardedImage = document.getElementById('rewardedImage');
-        if (rewardedImage) {
-          rewardedImage.style.display = 'block';
-        }
-      }
-
-      // 頁面載入時初始化
-      function initializeStamps() {
-        // 讀取已保存的圖章進度
-        loadStamps();
-
-        // 檢查兌換狀態
-        checkRedeemedState();
-
-        // 根據已收集的圖章更新UI
-        collectedStamps.forEach(stampId => {
-          updateEventDisplay(stampId);
+      // 依集章狀態把印章圖換成 -active
+      function renderStamps() {
+        Stamps.load().forEach(function (eventId) {
+          var img = document.querySelector('.event-item-' + eventId + ' img');
+          if (img) img.src = './assets/images/event-' + eventId + '-active.png';
         });
-
-        // 更新按鈕顯示狀態
-        updateButtonDisplay();
       }
 
+      // 集滿才顯示禮物按鈕
+      function renderGiftButton() {
+        var giftButton = document.getElementById('giftButton');
+        if (giftButton) giftButton.style.display = Stamps.isComplete() ? 'block' : 'none';
+      }
 
-      // loading 狀態
-      let isLoading = true;
+      // 已兌換則顯示「已領取」
+      function renderRewarded() {
+        if (!Progress.redeemed()) return;
 
-      // 顯示主要內容
-      function showMainContent() {
-        const loadingScreen = document.getElementById('loadingScreen');
-        const mainContent = document.getElementById('mainContent');
-        const footer = document.getElementById('footer');
-
-        isLoading = false;
-
-        if (loadingScreen) {
-          loadingScreen.style.display = 'none';
-        }
-        // 橫向時維持隱藏，由 checkOrientation 控制
-        if (popupManager.activePopup !== 'upright') {
-          if (mainContent) mainContent.style.display = 'flex';
-          if (footer) footer.style.display = 'flex';
-
-          checkCollectFromScan();
-          checkReturnFromSurvey();
-        }
+        var rewardedImage = document.getElementById('rewardedImage');
+        if (rewardedImage) rewardedImage.style.display = 'block';
       }
 
       // 從問卷頁送出後返回，自動帶出「前往服務臺」彈窗
       function checkReturnFromSurvey() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('survey') !== 'done' || popupManager.redeemed) {
-          return;
-        }
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('survey') !== 'done' || Progress.redeemed()) return;
 
-        showPopup('arrivePopup');
+        Popup.show('arrivePopup');
 
         // 清掉 query，避免重新整理又跳出彈窗
         window.history.replaceState({}, '', window.location.pathname);
       }
 
-      // 進度條動畫控制
-      function animateProgress() {
-        const progressFill = document.getElementById('progressFill');
-        let progress = 0;
+      // ---------- Loading ----------
+      function showMainContent() {
+        var loadingScreen = document.getElementById('loadingScreen');
+        var mainContent = document.getElementById('mainContent');
+        var footer = document.getElementById('footer');
 
-        const interval = setInterval(() => {
+        if (loadingScreen) loadingScreen.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'flex';
+        if (footer) footer.style.display = 'flex';
+
+        checkReturnFromSurvey();
+      }
+
+      // 進度條動畫
+      function animateProgress() {
+        var progressFill = document.getElementById('progressFill');
+        var progress = 0;
+
+        return setInterval(function () {
           progress += Math.random() * 15 + 5; // 隨機增加 5-20%
 
           if (progress >= 100) {
             progress = 100;
-            clearInterval(interval);
-            // 添加完成動畫效果
-            if (progressFill) {
-              progressFill.classList.add('completed');
-            }
+            if (progressFill) progressFill.classList.add('completed');
           }
 
-          // 更新進度條寬度
-          if (progressFill) {
-            progressFill.style.width = progress + '%';
-          }
-        }, 150); // 每150ms更新一次
-
-        return interval;
+          if (progressFill) progressFill.style.width = progress + '%';
+        }, 150);
       }
 
-      // 判斷是否為行動裝置
-      function isMobileDevice() {
-        // 檢查螢幕寬度是否小於等於 768px (通常是平板以下設備)
-        if (window.innerWidth <= 768) {
-          return true;
-        }
-        // 使用 User Agent 檢查是否為常見的移動設備
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-        return mobileRegex.test(userAgent);
-      }
+      document.addEventListener('DOMContentLoaded', function () {
+        renderStamps();
+        renderGiftButton();
+        renderRewarded();
 
-      // 橫向/直向檢測函數
-      function checkOrientation() {
-        const uprightPopup = document.getElementById('upright');
-        if (uprightPopup) {
-          // 只對行動裝置進行判斷
-          if (!isMobileDevice()) {
-            // PC 設備不顯示 upright 彈窗，確保它是隱藏的
-            uprightPopup.style.display = 'none';
-            popupManager.activePopup = null;
-            return;
-          }
-          
-          // 檢查是否為橫向 (寬度大於高度)
-          const isLandscape = window.innerWidth > window.innerHeight;
-          
-          if (isLandscape) {
-            // 橫向時顯示提示
-            uprightPopup.style.display = 'flex';
-            popupManager.activePopup = 'upright';
-            // 隱藏其他內容
-            const loadingScreen = document.getElementById('loadingScreen');
-            const mainContent = document.getElementById('mainContent');
-            const footer = document.getElementById('footer');
-            if (loadingScreen) loadingScreen.style.display = 'none';
-            if (mainContent) mainContent.style.display = 'none';
-            if (footer) footer.style.display = 'none';
-          } else {
-            // 直向時隱藏提示並恢復內容
-            if (popupManager.activePopup === 'upright') {
-              uprightPopup.style.display = 'none';
-              popupManager.activePopup = null;
+        var progressInterval = animateProgress();
 
-              // 恢復顯示：loading 中則回到 loading 畫面
-              const loadingScreen = document.getElementById('loadingScreen');
-              const mainContent = document.getElementById('mainContent');
-              const footer = document.getElementById('footer');
-              if (isLoading) {
-                if (loadingScreen) loadingScreen.style.display = 'flex';
-              } else {
-                if (mainContent) mainContent.style.display = 'flex';
-                if (footer) footer.style.display = 'flex';
-              }
-            }
-          }
-        }
-      }
-
-      // 頁面載入完成後初始化
-      document.addEventListener('DOMContentLoaded', function() {
-        // 檢查初始方向
-        checkOrientation();
-        
-        // 監聽方向變化
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', function() {
-          // 方向變化後稍微延遲再檢查，確保尺寸已更新
-          setTimeout(checkOrientation, 100);
-        });
-        
-        // 初始化
-        initializeStamps();
-        checkOrientation(); // 再次檢查方向
-
-        // 開始進度條動畫
-        const progressInterval = animateProgress();
-
-        // 3秒後顯示主要內容
-        setTimeout(() => {
-          // 確保進度條到達100%
-          const progressFill = document.getElementById('progressFill');
-          if (progressFill) {
-            progressFill.style.width = '100%';
-          }
-
-          // 清除進度動畫
+        // 3 秒後結束 loading，切換到集章卡
+        setTimeout(function () {
           clearInterval(progressInterval);
 
-          // 短暫延遲後切換到主要內容
+          var progressFill = document.getElementById('progressFill');
+          if (progressFill) progressFill.style.width = '100%';
+
           setTimeout(showMainContent, 300);
         }, 3000);
       });
-
     </script>
   </body>
 </html>

@@ -9,13 +9,70 @@
     <!-- 字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet"> 
-    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+
     <!-- 共用樣式 -->
     <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!-- 本頁樣式 -->
+    <style>
+      .scan-main{
+        gap: 16px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 24px;
+      }
+
+      .scan-hint{
+        color: #527ACC;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      /* 相機畫面與掃描框 */
+      .scan-frame{
+        position: relative;
+        width: 100%;
+        max-width: 280px;
+        aspect-ratio: 1 / 1;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #000;
+      }
+
+      .scan-frame video{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* 掃描線圖示疊在相機畫面上 */
+      .scan-frame .scan-line{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+      }
+
+      .scan-message{
+        color: #DA3700;
+        font-size: 16px;
+        line-height: 1.6;
+        text-align: center;
+        max-width: 280px;
+      }
+
+      .scan-back{
+        width: 240px;
+      }
+    </style>
   </head>
   <body>
-    <div class="container" style="background-color: transparent; background: transparent;">
+    <div class="container">
       <!-- header -->
       <div class="header">
         <img class="logo-1" src="./assets/images/logo-1.png" alt="logo">
@@ -23,44 +80,44 @@
       </div>
 
       <!-- content -->
-      <main class="main">
-        
+      <main class="main scan-main">
+        <div class="scan-hint">請對準攤位的集章 QR code</div>
 
-        <!-- 此處打開相機 -->
-        <div>
-          <img src="./assets/images/scan-line.svg" alt="">
+        <div class="scan-frame" id="scanFrame">
+          <video id="scanVideo" playsinline muted></video>
+          <img class="scan-line" src="./assets/images/scan-line.svg" alt="">
         </div>
-       
+
+        <!-- 相機無法使用時顯示原因 -->
+        <p class="scan-message" id="scanMessage" style="display: none;">正在開啟相機…</p>
+
+        <button class="common-button scan-back" onclick="backToEvent()">返回</button>
       </main>
 
       <!-- footer -->
       <div class="footer">
         <div class="footer-line"> </div>
       </div>
-      
+
     </div>
+
+    <!-- 解碼用畫布，不顯示於畫面 -->
+    <canvas id="scanCanvas" hidden></canvas>
+
+    <!-- 掃描到非活動 QR code -->
+    <div class="popup-overlay" id="nonActivityPopup">
+      <div class="popup-content">
+        <button class="popup-close" onclick="resumeScan()">×</button>
+        <h2 class="popup-title">請掃描活動QRcode</h2>
+        <div class="popup-content-box">
+          <p class="popup-message">請收集4個指定攤位的印章來兌換獎品吧!</p>
+        </div>
+        <button class="popup-button" onclick="resumeScan()">OK</button>
+      </div>
+    </div>
+
+    <script src="./assets/js/vendor/jsQR.js"></script>
+    <script src="./assets/js/app.js"></script>
+    <script src="./assets/js/scan.js"></script>
   </body>
 </html>
-<style>
-  
-  .main{
-   display: flex;
-   gap: 16px;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
-  }
-
-  .back-btn-box{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 96px;
-    min-height: 96px;
-    background-color: #FFEAD7;
-  }
-  .back-button{
-    width: 240px;
-  }
-</style>
