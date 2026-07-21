@@ -38,6 +38,7 @@ button {
   justify-content: space-between;
   align-items: center;
   margin: 0 auto;
+  position: relative;
   max-width: 500px;
   border: 1px solid #527ACC;
   background: linear-gradient(180deg, #C5E7FA 0%, #FFFFFF 100%);;
@@ -607,7 +608,7 @@ body.has-cookie-consent .header {
   top: calc(50% - 169px);
   width: 100%;
   height: 338px;
-
+  max-width: 500px;
 }
 .cloud-bg .cloud-1{
   position: absolute;
