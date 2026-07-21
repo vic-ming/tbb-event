@@ -659,6 +659,66 @@ body.has-cookie-consent .header {
   width: 240px;
 }
 
+/* ---------- 嵌入表單彈窗（event-4 尋寶圖） ---------- */
+
+.form-open-button{
+  width: 100%;
+  max-width: 280px;
+  margin-top: 16px;
+  font-size: 18px;
+}
+
+/* 表單需要空間，這個彈窗鋪滿整個畫面 */
+.popup-content.form-popup{
+  width: 100%;
+  height: 100%;
+  max-width: 500px;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  min-height: 0;
+  background-color: #FFFFFF;
+  overflow: hidden;
+}
+
+.form-popup-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #527ACC;
+}
+
+.form-popup-title{
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.form-popup-close{
+  width: 32px;
+  height: 32px;
+  font-size: 32px;
+  line-height: 1;
+  color: #FFFFFF;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 表單本身在 iframe 內捲動，頁面外框保持不動 */
+.form-popup-frame{
+  flex: 1;
+  width: 100%;
+  border: 0;
+  display: block;
+}
+
 /* ---------- 關卡內頁（event-1~4） ---------- */
 .event-main{
   padding: 0 24px;

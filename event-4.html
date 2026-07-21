@@ -34,9 +34,12 @@
                 <div>任務1</div>
                 <img src="./assets/images/angle.svg" alt="angle">
               </div>
-              <div class="step-text">走訪人生100設計館，探索終身學習資源，完成「全齡教育尋寶圖」。<br><span>(*有可能加入google sheet 外部連結)</span></div>
+              <div class="step-text">走訪人生100設計館，探索終身學習資源，完成「全齡教育尋寶圖」。</div>
             </div>
           </div>
+
+          <!-- 尋寶圖表單：點擊後以全螢幕彈窗嵌入，不離開活動網站 -->
+          <button class="common-button form-open-button" onclick="openTreasureForm()">開啟全齡教育尋寶圖</button>
         </div>
       </main>
 
@@ -75,11 +78,37 @@
       </div>
     </div>
 
+    <!-- 全齡教育尋寶圖（Google 表單） -->
+    <div class="popup-overlay" id="treasureFormPopup">
+      <div class="popup-content form-popup">
+        <div class="form-popup-header">
+          <h2 class="form-popup-title">全齡教育尋寶圖</h2>
+          <button class="form-popup-close" onclick="closePopup()" aria-label="關閉">×</button>
+        </div>
+        <!-- src 於開啟時才填入，避免每次進入本頁都去載入表單 -->
+        <iframe
+          class="form-popup-frame"
+          id="treasureFormFrame"
+          data-src="https://docs.google.com/forms/d/e/1FAIpQLSdqzPXMKo7CFqQX8lKK00JktSgW-6HlEt-2g2PwMhUbSypQkg/viewform?embedded=true"
+          title="全齡教育尋寶圖">載入中…</iframe>
+      </div>
+    </div>
+
     <script src="./assets/js/app.js"></script>
     <script src="./assets/js/event-detail.js"></script>
     <script>
       // 本頁關卡編號；其餘邏輯共用 event-detail.js
       initEventDetail(4);
+
+      // 開啟尋寶圖表單；第一次開啟才真正載入 iframe
+      function openTreasureForm() {
+        var frame = document.getElementById('treasureFormFrame');
+        if (frame && !frame.src) {
+          frame.src = frame.getAttribute('data-src');
+        }
+
+        Popup.show('treasureFormPopup');
+      }
     </script>
 
   </body>
