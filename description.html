@@ -48,8 +48,60 @@
       </div>
 
       <!-- content -->
-      <main id="mainContent" style="display: flex;">
-        <img class="banner" src="./assets/images/banner.png" alt="">
+      <main class="main" id="mainContent">
+        <div class="usage-title">臺灣企銀集章活動</div>
+        <div class="org-line"></div>
+        <div class="usage-content">
+          <div class="usage-content-title">
+            歡迎來到教育部《人生設計夢工場—人生100、設計未來》只要前往各展區，完成指定任務，就能獲得1枚「夢工場印章」！
+          </div>
+
+          <!-- 步驟 -->
+          <div class="content-step-list">
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟1</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">完成攤位體驗掃描QRcode</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟2</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">掃描成功後，獲得該攤位圖章</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟3</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">集滿4個圖章，完成集章活動</div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">
+                <div>步驟4</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">憑兌換畫面至服務臺領取獎品!</div>
+            </div>
+          </div>
+
+          <!-- 備註 -->
+          <div class="content-ps">
+            <div class="ps-title">備註</div>
+            <div>
+              <p>1. 每支行動裝置只能體驗一次喔。</p>
+              <p>2. 請確認下方流程，來確保最佳操作效果：</p>
+              <ul>
+                <li>建議以Chrome瀏覽器開啟</li>
+                <li>點選同意開啟鏡頭權限</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="content-b-text">※教育部保留活動調整、異動或停止之權利</div>
         <button class="common-button back-button" onclick="handleStartCollect()">開始蒐集</button>
       </main>
 
@@ -162,11 +214,125 @@
    justify-content: center;
    align-items: center;
   }
-
+  .usage-title{
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    color: #527ACC;
+  }
+  .org-line{
+    width: 38px;
+    height: 4px;
+    background-color: #78B2DA;
+  }
+  .usage-content{
+    color: #333333;
+    font-size: 16px;
+    text-align: left;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 293px);
+    padding-right: 8px;
+    margin-right: -8px;
+    padding-top: 8px;
+    width: 100%;
+  }
+  .usage-content-title{
+    border: 1px solid #666;
+    padding: 4px 30.5px;
+    border-radius: 4px;
+    color: #666666;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+  
+  /* 自定義滾動條樣式 */
+  .usage-content::-webkit-scrollbar {
+    width: 2px;
+  }
+  
+  .usage-content::-webkit-scrollbar-track {
+    background: #10495D33;
+    border-radius: 3px;
+  }
+  
+  .usage-content::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 3px;
+  }
+  
+  .usage-content::-webkit-scrollbar-thumb:hover {
+    background: #666;
+  }
+  
   .back-button{
     width: 240px;
-    position: absolute;
-    bottom: 49px;
-    left: calc(50% - 120px);
+  }
+
+
+  .content-step-list{
+    display: flex;
+    flex-direction: column;
+    gap: 8;
+    margin-bottom: 24px;
+  }
+  .content-step-list .step-item{
+    display: flex;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .content-step-list .step-item .step-number{
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    gap: 4px;
+    color: #666;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .content-step-list .step-item .step-text{
+    font-size: 18px;
+    font-weight: 500;
+    color: #666;
+    flex: 1;
+    padding: 1.5px 0;
+  }
+
+  .content-ps{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    
+  }
+
+  .content-ps .ps-title{
+    border: 2px solid #666;
+    padding: 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #666;
+    min-width: fit-content;
+  }
+  .content-ps p {
+    line-height: 1.5;
+    margin-bottom: 0;
+    font-size: 16px;
+    color: #666;
+  }
+  .content-ps ul {
+    margin: 10px 0;
+    color: #666;
+    line-height: 1.8;
+  }
+
+
+  .content-b-text{
+    font-weight: 500;
+    font-size: 14px;
+    color: #666;
   }
 </style>

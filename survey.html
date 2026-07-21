@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- <link rel="icon" href="./assets/favicon.ico"> -->
+    <title>Event</title>
+    <!-- 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- 共用樣式 -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <!-- header -->
+      <div class="header">
+        <img class="logo-1" src="./assets/images/logo-1.png" alt="logo">
+        <img class="logo-2" src="./assets/images/logo-2.png" alt="logo">
+      </div>
+
+      <!-- content -->
+      <main class="main" id="mainContent">
+        <div class="survey-title">滿意度調查問卷</div>
+        <div class="survey-intro">
+          感謝您參觀教育部主題館，為提升我們的服務品質，懇請您撥冗填寫本問卷，您的意見將作為未來改進的重要參考。
+        </div>
+
+        <!-- 題目由 surveyQuestions 動態產生 -->
+        <div class="survey-list" id="surveyList"></div>
+
+        <p class="survey-error" id="surveyError" style="display: none;">尚有題目未作答，請完成後再送出</p>
+
+        <button class="common-button survey-submit" onclick="submitSurvey()">送出</button>
+      </main>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="footer-line"> </div>
+      </div>
+
+    </div>
+
+    <!-- 提示不可橫向 -->
+    <div class="popup-overlay" id="upright">
+      <img src="./assets/images/upright.svg" alt="upright">
+    </div>
+
+    <script>
+      // ============================================================
+      // 問卷題目設定（增修本陣列，畫面會自動產生）
+      // type: single 單選（預設）/ multiple 複選 / text 文字填答
+      // required: 預設 true，設為 false 表示非必填
+      // ============================================================
+      const surveyQuestions = [
+        {
+          id: 'q1',
+          text: '參觀教育部主題館後，您是否更了解教育部推動高齡學習與教育的政策及成果？',
+          options: ['非常同意', '同意', '普通', '不同意', '非常不同意']
+        },
+        {
+          id: 'q2',
+          text: '您會向親友推薦參觀教育部主題館嗎？',
+          options: ['一定會', '可能會', '不一定', '可能不會', '一定不會']
+        },
+        {
+          id: 'q3',
+          text: '整體而言，您對教育部主題館的滿意度程度為何？',
+          options: ['非常滿意', '滿意', '普通', '不滿意', '非常不滿意']
+        },
+        {
+          id: 'q4',
+          text: '本次教育部主題館最吸引您的部分為何？(可複選)',
+          type: 'multiple',
+          options: ['展示內容', '互動體驗', '視覺設計', '多媒體影音', '舞臺展演', '闖關活動']
+        },
+        {
+          id: 'q5',
+          text: '您對於教育部主題館【人生設計夢工場-人生100 設計未來】有其他想分享的地方，請留言告訴我們？(非必填)',
+          type: 'text',
+          required: false,
+          placeholder: '填寫內容'
+        }
+      ];
+
+      // 作答結果
+      const answers = {};
+
+      // 產生題目畫面
+      function renderQuestions() {
+        const list = document.getElementById('surveyList');
+        if (!list) return;
+
+        surveyQuestions.forEach((question, index) => {
+          const item = document.createElement('div');
+          item.className = 'survey-item';
+
+          const title = document.createElement('div');
+          title.className = 'survey-question';
+          title.innerHTML = `<span class="survey-number">${index + 1}</span>
+            <img class="survey-angle" src="./assets/images/angle.svg" alt="angle">
+            <span class="survey-question-text">${question.text}</span>`;
+          item.appendChild(title);
+
+          if (question.type === 'text') {
+            item.appendChild(createTextInput(question));
+          } else {
+            item.appendChild(createOptions(question));
+          }
+
+          list.appendChild(item);
+        });
+      }
+
+      // 產生選項按鈕（單選 / 複選）
+      function createOptions(question) {
+        const optionBox = document.createElement('div');
+        optionBox.className = 'survey-options';
+        const isMultiple = question.type === 'multiple';
+
+        if (isMultiple) {
+          answers[question.id] = [];
+        }
+
+        question.options.forEach(option => {
+          const button = document.createElement('button');
+          button.className = 'survey-option';
+          button.type = 'button';
+          button.textContent = option;
+          button.onclick = () => {
+            if (isMultiple) {
+              toggleOption(question.id, option, button);
+            } else {
+              selectOption(question.id, option, optionBox, button);
+            }
+          };
+          optionBox.appendChild(button);
+        });
+
+        return optionBox;
+      }
+
+      // 產生文字填答欄位
+      function createTextInput(question) {
+        const textarea = document.createElement('textarea');
+        textarea.className = 'survey-textarea';
+        textarea.rows = 3;
+        textarea.placeholder = question.placeholder || '';
+        textarea.oninput = () => {
+          answers[question.id] = textarea.value.trim();
+          hideError();
+        };
+
+        return textarea;
+      }
+
+      // 單選
+      function selectOption(questionId, option, optionBox, button) {
+        answers[questionId] = option;
+
+        // 同一題僅能單選
+        optionBox.querySelectorAll('.survey-option').forEach(item => {
+          item.classList.remove('selected');
+        });
+        button.classList.add('selected');
+
+        hideError();
+      }
+
+      // 複選
+      function toggleOption(questionId, option, button) {
+        const selected = answers[questionId];
+        const index = selected.indexOf(option);
+
+        if (index === -1) {
+          selected.push(option);
+          button.classList.add('selected');
+        } else {
+          selected.splice(index, 1);
+          button.classList.remove('selected');
+        }
+
+        hideError();
+      }
+
+      // 有作答就先收起錯誤提示
+      function hideError() {
+        const error = document.getElementById('surveyError');
+        if (error) error.style.display = 'none';
+      }
+
+      // 該題是否已作答
+      function isAnswered(question) {
+        const answer = answers[question.id];
+
+        if (question.type === 'multiple') {
+          return Array.isArray(answer) && answer.length > 0;
+        }
+        return typeof answer === 'string' && answer !== '';
+      }
+
+      // 送出問卷
+      function submitSurvey() {
+        // 非必填題目不列入檢查
+        const unanswered = surveyQuestions.filter(question => {
+          return question.required !== false && !isAnswered(question);
+        });
+
+        if (unanswered.length > 0) {
+          const error = document.getElementById('surveyError');
+          if (error) error.style.display = 'block';
+
+          // 捲動到第一題未作答的題目
+          const firstIndex = surveyQuestions.indexOf(unanswered[0]);
+          const items = document.querySelectorAll('.survey-item');
+          if (items[firstIndex]) {
+            items[firstIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          return;
+        }
+
+        // todo: 之後改為送到後端，目前僅記錄於本機
+        localStorage.setItem('surveyCompleted', 'true');
+        localStorage.setItem('surveyAnswers', JSON.stringify(answers));
+
+        // 回主畫面並帶出「前往服務臺」彈窗
+        window.location.href = 'event-list.html?survey=done';
+      }
+
+      // 判斷是否為行動裝置
+      function isMobileDevice() {
+        if (window.innerWidth <= 768) {
+          return true;
+        }
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+        return mobileRegex.test(userAgent);
+      }
+
+      // 橫向/直向檢測
+      function checkOrientation() {
+        const uprightPopup = document.getElementById('upright');
+        const mainContent = document.getElementById('mainContent');
+        if (!uprightPopup) return;
+
+        if (!isMobileDevice()) {
+          uprightPopup.style.display = 'none';
+          return;
+        }
+
+        const isLandscape = window.innerWidth > window.innerHeight;
+
+        if (isLandscape) {
+          uprightPopup.style.display = 'flex';
+          if (mainContent) mainContent.style.display = 'none';
+        } else {
+          uprightPopup.style.display = 'none';
+          if (mainContent) mainContent.style.display = 'flex';
+        }
+      }
+
+      // 頁面載入完成後初始化
+      document.addEventListener('DOMContentLoaded', function() {
+        renderQuestions();
+
+        checkOrientation();
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', function() {
+          setTimeout(checkOrientation, 100);
+        });
+      });
+    </script>
+  </body>
+</html>
+<style>
+
+  .main{
+   padding: 16px 24px;
+   display: flex;
+   gap: 16px;
+   flex-direction: column;
+   justify-content: flex-start;
+   align-items: center;
+   overflow-y: auto;
+  }
+
+  .survey-title{
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    color: #527ACC;
+  }
+
+  .survey-intro{
+    color: #333333;
+    font-size: 16px;
+    text-align: left;
+    line-height: 1.6;
+  }
+
+  .survey-list{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .survey-item{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .survey-question{
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    color: #333333;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .survey-number{
+    font-weight: 700;
+    color: #527ACC;
+  }
+
+  .survey-angle{
+    width: 10px;
+    margin-top: 7px;
+  }
+
+  .survey-question-text{
+    flex: 1;
+  }
+
+  .survey-options{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .survey-option{
+    flex: 1 1 calc(50% - 8px);
+    min-width: calc(50% - 8px);
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 15px;
+    color: #527ACC;
+    background-color: #FFFFFF;
+    border: 2px solid #527ACC;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .survey-option.selected{
+    color: #FFFFFF;
+    background-color: #527ACC;
+  }
+
+  .survey-textarea{
+    width: 100%;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 15px;
+    color: #333333;
+    background-color: #FFFFFF;
+    border: 2px solid #527ACC;
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+
+  .survey-error{
+    color: #DA3700;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .survey-submit{
+    width: 240px;
+    margin: 8px auto 24px;
+  }
+</style>

@@ -17,30 +17,40 @@
   <body>
     <div class="container">
       <!-- header -->
-      <div class="header" onclick="showNonActivityPopup()">
-        <img src="./assets/images/logo.svg" alt="logo">
+      <div class="header">
+        <img class="logo-1" src="./assets/images/logo-1.png" alt="logo">
+        <img class="logo-2" src="./assets/images/logo-2.png" alt="logo">
       </div>
 
+      <!-- loading -->
+      <main class="main" id="loadingScreen">
+        <div class="loading-container">
+          <span class="loading-text">LOADING...</span>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+
       <!-- content -->
-      <main class="main" id="mainContent">
+      <main class="main" id="mainContent" style="display: none;">
+        <div class="event-title">夢工場集章卡</div>
+        <div class="event-text">集滿以下4枚印章，即可前往攤位服務臺兌換精美好禮1份！每人限兌換1次，數量有限，送完為止！</div>
         <div class="event-container">
-          <div></div>
-          <div class="event-item-1" onclick="collectEvent(1)">
+          <div class="event-item-1" onclick="goToEvent(1)">
             <img src="./assets/images/event-1.png" alt="event">
           </div>
-          <div></div>
-          <div class="event-item-2" onclick="collectEvent(2)">
+          <div class="event-item-2" onclick="goToEvent(2)">
             <img src="./assets/images/event-2.png" alt="event">
           </div>
-          <div></div>
-          <div class="event-item-3" onclick="collectEvent(3)">
+          <div class="event-item-3" onclick="goToEvent(3)">
             <img src="./assets/images/event-3.png" alt="event">
           </div>
-          <div></div>
-          <div class="event-item-4" onclick="collectEvent(4)">
+          <div class="event-item-4" onclick="goToEvent(4)">
             <img src="./assets/images/event-4.png" alt="event">
           </div>
-          <div></div>
         </div>
 
         <!-- 已領取 -->
@@ -53,11 +63,8 @@
       <div class="footer">
         <div class="footer-buttons"  id="footer" style="display: none;">
           <!-- 使用說明 -->
-          <img class="usage-button" src="./assets/images/usage.svg" alt="event" onclick="window.location.href='index.html'">
-          
-          <!-- 掃描按鈕（收集完成前顯示） -->
-          <img class="scan-button" id="scanButton" src="./assets/images/scan.svg" alt="event" onclick="window.location.href='scan.html'" style="display: block;">
-
+          <img class="usage-button" src="./assets/images/usage.svg" alt="event" onclick="window.location.href='description.html'">
+         
           <!-- 禮物按鈕（收集完成後顯示） -->
           <img class="gift-button" id="giftButton" src="./assets/images/gift.svg" alt="event" onclick="showRedeemPopup()" style="display: none;">
 
@@ -70,51 +77,44 @@
     </div>
 
 
-      <!-- 兌換獎品彈窗 -->
+      <!-- 步驟1：完成問卷兌換獎品彈窗 -->
+      <div class="popup-overlay" id="surveyPopup">
+        <div class="popup-content">
+          <button class="popup-close" onclick="closePopup()">×</button>
+          <h2 class="popup-title">完成問卷兌換獎品</h2>
+          <div class="popup-content-box">
+            <p class="popup-message">恭喜集滿4枚印章，完成問卷後至服務臺，出示本畫面兌換獎品。</p>
+          </div>
+          <button class="popup-button" onclick="goToSurvey()">填寫問卷</button>
+        </div>
+      </div>
+
+      <!-- 步驟2：問卷完成，前往服務臺彈窗 -->
+      <div class="popup-overlay" id="arrivePopup">
+        <div class="popup-content">
+          <button class="popup-close" onclick="closePopup()">×</button>
+          <h2 class="popup-title">兌換獎品</h2>
+          <div class="popup-content-box">
+            <p class="popup-message">感謝您完成問卷，請前往服務臺領取獎品</p>
+          </div>
+          <button class="popup-button" onclick="showRedeemPasswordPopup()">抵達服務臺</button>
+        </div>
+      </div>
+
+      <!-- 步驟3：服務人員輸入密碼彈窗 -->
       <div class="popup-overlay" id="redeemPopup">
         <div class="popup-content">
           <button class="popup-close" onclick="closePopup()">×</button>
           <h2 class="popup-title">兌換獎品</h2>
           <div class="popup-content-box">
-            <p class="popup-message">恭喜集滿4個主題圖章，<br>請至服務臺出示本畫面兌換獎品</p>
-            <div class="popup-notice">
-              <span class="notice-label">注意</span>
-              <p class="notice-text">請交由服務人員按下兌換按鈕領取精美贈品</p>
+            <p class="popup-message">恭喜集滿4枚印章，<br>請前往服務臺出示本畫面兌換獎品</p>
+            <div class="popup-input-group">
+              <div class="popup-label">請交由服務人員輸入密碼</div>
+              <input class="popup-input" type="text" id="redeemPasswordInput" placeholder="請輸入密碼" autocomplete="off">
+              <p class="popup-error" id="redeemPasswordError" style="display: none;">密碼錯誤，請重新輸入</p>
             </div>
           </div>
-          <button class="popup-button" onclick="goToRedeem()">去兌換</button>
-        </div>
-      </div>
-
-
-      <!-- 確認兌換框彈窗 -->
-      <div class="popup-overlay" id="confirmPopup">
-        <div class="popup-content">
-          <button class="popup-close" onclick="closePopup()">×</button>
-          <h2 class="popup-title">兌換獎品</h2>
-          <div class="popup-content-box">
-            <p class="popup-message">是否確認兌換？</p>
-            <div class="popup-notice">
-              <span class="notice-label">注意</span>
-              <p class="notice-text">請交由服務人員按下兌換按鈕領取精美贈品</p>
-            </div>
-          </div>
-          <div style="display: flex; gap: 12px;">
-            <button class="popup-button" onclick="showFinishPopup()" style="flex: 1;">兌換</button>
-            <button class="popup-button" onclick="closePopup()" style="flex: 1;">取消</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 兌換完成彈窗 -->
-      <div class="popup-overlay" id="finishPopup">
-        <div class="popup-content">
-          <button class="popup-close" onclick="closePopup()">×</button>
-          <h2 class="popup-title">兌換獎品</h2>
-          <div class="popup-content-box">
-            <p class="popup-message">請領取獎品</p>
-          </div>
-           <button class="popup-button" onclick="closeFinishPopup()">OK</button>
+          <button class="popup-button" onclick="goToRedeem()">兌換</button>
         </div>
       </div>
 
@@ -126,7 +126,7 @@
           <div class="popup-content-box">
             <p class="popup-message">每支行動裝置只能體驗一次噢</p>
           </div>
-           <button class="popup-button" onclick="closeFinishPopup()">OK</button>
+           <button class="popup-button" onclick="closePopup()">OK</button>
         </div>
       </div>
 
@@ -255,12 +255,18 @@
         popupManager.closeAllPopups();
       }
 
-      // 兌換獎品彈窗相關函數
+      // 兌換流程：完成問卷 → 抵達服務臺 → 服務人員輸入密碼 → 兌換完成
       function showRedeemPopup() {
         if (popupManager.redeemed) {
           showRedeemedPopup();
+          return;
+        }
+
+        if (hasCompletedSurvey()) {
+          // 已填過問卷，直接進入前往服務臺步驟
+          showPopup('arrivePopup');
         } else {
-          showPopup('redeemPopup');
+          showPopup('surveyPopup');
         }
       }
 
@@ -268,19 +274,39 @@
         closePopup();
       }
 
+      // 前往問卷頁
+      function goToSurvey() {
+        window.location.href = 'survey.html';
+      }
+
+      // 顯示密碼輸入彈窗
+      function showRedeemPasswordPopup() {
+        showPopup('redeemPopup');
+
+        // 每次開啟都清空輸入與錯誤訊息
+        const input = document.getElementById('redeemPasswordInput');
+        const error = document.getElementById('redeemPasswordError');
+        if (input) input.value = '';
+        if (error) error.style.display = 'none';
+      }
+
+      // todo: 目前密碼寫死在前端，之後改為呼叫後端驗證
+      const REDEEM_PASSWORD = '1234';
+
       function goToRedeem() {
-        // 在這裡實作兌換邏輯
-        closePopup();
-        showConfirmPopup();
-      }
+        const input = document.getElementById('redeemPasswordInput');
+        const error = document.getElementById('redeemPasswordError');
+        const password = input ? input.value.trim() : '';
 
-      function showFinishPopup() {
-        showPopup('finishPopup');
-      }
+        if (password !== REDEEM_PASSWORD) {
+          if (error) error.style.display = 'block';
+          return;
+        }
 
-      function closeFinishPopup() {
+        if (error) error.style.display = 'none';
         closePopup();
-        // 領取完成後的處理
+
+        // 兌換完成，切換為已領取狀態
         showRewardedDisplay();
       }
 
@@ -305,31 +331,49 @@
       function showRewardedDisplay() {
         // 顯示已領取圖片
         popupManager.redeemed = true;
+        saveRedeemedState();
         const rewardedImage = document.getElementById('rewardedImage');
         if (rewardedImage) {
           rewardedImage.style.display = 'block';
         }
-      
-      }
 
-      function showConfirmPopup() {
-        showPopup('confirmPopup');
-      }
-
-      // 確認彈窗的回調函數
-      function onConfirm() {
-        alert('用戶確認了操作');
-        closePopup();
-      }
-
-      function onCancel() {
-        alert('用戶取消了操作');
-        closePopup();
       }
 
       // 圖章收集狀態管理
       let collectedStamps = []
       const totalStamps = 4;
+
+      // 狀態保存（換頁到問卷 / 掃描頁後仍需保留進度）
+      const STORAGE_KEYS = {
+        stamps: 'collectedStamps',
+        survey: 'surveyCompleted',
+        redeemed: 'redeemed'
+      };
+
+      function saveStamps() {
+        localStorage.setItem(STORAGE_KEYS.stamps, JSON.stringify(collectedStamps));
+      }
+
+      function loadStamps() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.stamps));
+          collectedStamps = Array.isArray(saved) ? saved : [];
+        } catch (e) {
+          collectedStamps = [];
+        }
+      }
+
+      function hasCompletedSurvey() {
+        return localStorage.getItem(STORAGE_KEYS.survey) === 'true';
+      }
+
+      function saveRedeemedState() {
+        localStorage.setItem(STORAGE_KEYS.redeemed, 'true');
+      }
+
+      function loadRedeemedState() {
+        return localStorage.getItem(STORAGE_KEYS.redeemed) === 'true';
+      }
 
       // 圖章文字對應關係
       const stampTitles = {
@@ -338,6 +382,32 @@
         3: '打詐訓練室',
         4: '防詐電話亭'
       };
+
+      // 前往各關卡內頁（掃描集章）
+      function goToEvent(eventId) {
+        // 已兌換過就不再進入關卡
+        if (popupManager.redeemed) {
+          showRedeemedPopup();
+          return;
+        }
+        window.location.href = `event-${eventId}.html`;
+      }
+
+      // 從內頁掃描完成返回時，依 query 參數集章
+      // 內頁掃描成功會導回 event-list.html?collect=N
+      function checkCollectFromScan() {
+        const params = new URLSearchParams(window.location.search);
+        const collectId = parseInt(params.get('collect'), 10);
+
+        // 清掉 query，避免重新整理又重複觸發
+        if (params.has('collect')) {
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        if (collectId >= 1 && collectId <= totalStamps) {
+          collectEvent(collectId);
+        }
+      }
 
       // 圖章收集函數
       function collectEvent(eventId) {
@@ -358,6 +428,7 @@
         
         // 添加到已收集列表
         collectedStamps.push(eventId);
+        saveStamps();
 
         // 更新UI顯示
         updateEventDisplay(eventId);
@@ -415,61 +486,115 @@
         // 可以在這裡添加其他邏輯，比如音效、動畫等
       }
 
-      // 切換到禮物按鈕
+      // 禮物按鈕：集滿才顯示
       function switchToGiftButton() {
-        const scanButton = document.getElementById('scanButton');
         const giftButton = document.getElementById('giftButton');
-        
-        if (scanButton && giftButton) {
-          scanButton.style.display = 'none';
+        if (giftButton) {
           giftButton.style.display = 'block';
-        }
-      }
-
-      // 切換到掃描按鈕
-      function switchToScanButton() {
-        const scanButton = document.getElementById('scanButton');
-        const giftButton = document.getElementById('giftButton');
-        
-        if (scanButton && giftButton) {
-          scanButton.style.display = 'block';
-          giftButton.style.display = 'none';
         }
       }
 
       // 更新按鈕顯示狀態
       function updateButtonDisplay() {
-        if (collectedStamps.length >= totalStamps) {
-          switchToGiftButton();
-        } else {
-          switchToScanButton();
+        const giftButton = document.getElementById('giftButton');
+        if (giftButton) {
+          giftButton.style.display = collectedStamps.length >= totalStamps ? 'block' : 'none';
         }
       }
 
       // 檢查是否已兌換
       function checkRedeemedState() {
-        // 這裡可以從 localStorage 或其他地方檢查兌換狀態
-        // 目前簡化為檢查已領取圖片是否顯示
+        if (!loadRedeemedState()) {
+          return;
+        }
+
+        popupManager.redeemed = true;
         const rewardedImage = document.getElementById('rewardedImage');
-        if (rewardedImage && rewardedImage.style.display === 'block') {
-          popupManager.redeemed = true;
+        if (rewardedImage) {
+          rewardedImage.style.display = 'block';
         }
       }
 
       // 頁面載入時初始化
       function initializeStamps() {
+        // 讀取已保存的圖章進度
+        loadStamps();
+
         // 檢查兌換狀態
         checkRedeemedState();
-        
+
         // 根據已收集的圖章更新UI
         collectedStamps.forEach(stampId => {
           updateEventDisplay(stampId);
         });
-        
+
         // 更新按鈕顯示狀態
         updateButtonDisplay();
       }
 
+
+      // loading 狀態
+      let isLoading = true;
+
+      // 顯示主要內容
+      function showMainContent() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
+        const footer = document.getElementById('footer');
+
+        isLoading = false;
+
+        if (loadingScreen) {
+          loadingScreen.style.display = 'none';
+        }
+        // 橫向時維持隱藏，由 checkOrientation 控制
+        if (popupManager.activePopup !== 'upright') {
+          if (mainContent) mainContent.style.display = 'flex';
+          if (footer) footer.style.display = 'flex';
+
+          checkCollectFromScan();
+          checkReturnFromSurvey();
+        }
+      }
+
+      // 從問卷頁送出後返回，自動帶出「前往服務臺」彈窗
+      function checkReturnFromSurvey() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('survey') !== 'done' || popupManager.redeemed) {
+          return;
+        }
+
+        showPopup('arrivePopup');
+
+        // 清掉 query，避免重新整理又跳出彈窗
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      // 進度條動畫控制
+      function animateProgress() {
+        const progressFill = document.getElementById('progressFill');
+        let progress = 0;
+
+        const interval = setInterval(() => {
+          progress += Math.random() * 15 + 5; // 隨機增加 5-20%
+
+          if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            // 添加完成動畫效果
+            if (progressFill) {
+              progressFill.classList.add('completed');
+            }
+          }
+
+          // 更新進度條寬度
+          if (progressFill) {
+            progressFill.style.width = progress + '%';
+          }
+        }, 150); // 每150ms更新一次
+
+        return interval;
+      }
 
       // 判斷是否為行動裝置
       function isMobileDevice() {
@@ -503,8 +628,10 @@
             uprightPopup.style.display = 'flex';
             popupManager.activePopup = 'upright';
             // 隱藏其他內容
+            const loadingScreen = document.getElementById('loadingScreen');
             const mainContent = document.getElementById('mainContent');
             const footer = document.getElementById('footer');
+            if (loadingScreen) loadingScreen.style.display = 'none';
             if (mainContent) mainContent.style.display = 'none';
             if (footer) footer.style.display = 'none';
           } else {
@@ -512,12 +639,17 @@
             if (popupManager.activePopup === 'upright') {
               uprightPopup.style.display = 'none';
               popupManager.activePopup = null;
-              
-              // 恢復主要內容顯示
+
+              // 恢復顯示：loading 中則回到 loading 畫面
+              const loadingScreen = document.getElementById('loadingScreen');
               const mainContent = document.getElementById('mainContent');
               const footer = document.getElementById('footer');
-              if (mainContent) mainContent.style.display = 'flex';
-              if (footer) footer.style.display = 'flex';
+              if (isLoading) {
+                if (loadingScreen) loadingScreen.style.display = 'flex';
+              } else {
+                if (mainContent) mainContent.style.display = 'flex';
+                if (footer) footer.style.display = 'flex';
+              }
             }
           }
         }
@@ -538,12 +670,24 @@
         // 初始化
         initializeStamps();
         checkOrientation(); // 再次檢查方向
-        
-        // 顯示 footer
-        const footer = document.getElementById('footer');
-        if (footer) {
-          footer.style.display = 'flex';
-        }
+
+        // 開始進度條動畫
+        const progressInterval = animateProgress();
+
+        // 3秒後顯示主要內容
+        setTimeout(() => {
+          // 確保進度條到達100%
+          const progressFill = document.getElementById('progressFill');
+          if (progressFill) {
+            progressFill.style.width = '100%';
+          }
+
+          // 清除進度動畫
+          clearInterval(progressInterval);
+
+          // 短暫延遲後切換到主要內容
+          setTimeout(showMainContent, 300);
+        }, 3000);
       });
 
     </script>

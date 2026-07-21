@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- <link rel="icon" href="./assets/favicon.ico"> -->
+    <title>Event</title>
+    <!-- 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- 共用樣式 -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <!-- header -->
+      <div class="header">
+        <img class="logo-1" src="./assets/images/logo-1.png" alt="logo">
+        <img class="logo-2" src="./assets/images/logo-2.png" alt="logo">
+      </div>
+
+      <!-- content -->
+      <main class="main">
+        <div class="event-detail">
+          <div class="event-title">技術及職業教育司</div>
+          <img class="event-detail-img" id="eventImage" src="./assets/images/event-3-collect.png" alt="event">
+          <div class="event-detail-step">
+
+            <div class="step-item">
+              <div class="step-number">
+                <div>任務1</div>
+                <img src="./assets/images/angle.svg" alt="angle">
+              </div>
+              <div class="step-text">至少需與任一學校互動，完成後即可獲得印章。</div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="footer-buttons" id="footer">
+          <!-- 使用說明 -->
+          <img class="usage-button" src="./assets/images/usage.svg" alt="event" onclick="window.location.href='description.html'">
+
+          <!-- 掃描集章按鈕 -->
+          <img class="scan-button" src="./assets/images/scan.svg" alt="scan" onclick="startScan()">
+
+          <!-- 隱私權政策 -->
+          <img class="privacy-button" src="./assets/images/privacy.svg" alt="event" onclick="window.location.href='privacy.html'">
+        </div>
+        <div class="footer-line"> </div>
+      </div>
+
+    </div>
+
+      <!-- 圖章收集彈窗 -->
+      <div class="popup-overlay" id="stampCollectedPopup">
+        <div class="popup-content stamp-popup">
+          <h2 class="popup-title" style="margin-bottom: 0;" id="stampPopupTitle">獲得新印章</h2>
+          <div class="stamp-icon">
+            <img id="collectedStampImage" src="" alt="collected stamp">
+          </div>
+          <h3 class="stamp-subtitle pink" id="stampSubtitle"></h3>
+          <button class="popup-button stamp-ok-button" onclick="onStampCollected()">返回集章卡</button>
+        </div>
+      </div>
+
+    <script>
+      // 本關卡編號
+      const EVENT_ID = 3;
+      const STORAGE_KEY = 'collectedStamps';
+
+      function loadCollected() {
+        try {
+          var v = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          return Array.isArray(v) ? v : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      // 依集章狀態切換內頁圖片：已集章顯示 -collected，未集章顯示 -collect
+      (function showCollectedState() {
+        if (loadCollected().includes(EVENT_ID)) {
+          var img = document.getElementById('eventImage');
+          if (img) img.src = './assets/images/event-' + EVENT_ID + '-collected.png';
+        }
+      })();
+
+      // 掃描集章：集章並顯示「獲得新圖章」彈窗（相機串接前先視為掃描成功）
+      function startScan() {
+        var collected = loadCollected();
+        var already = collected.includes(EVENT_ID);
+
+        if (!already) {
+          collected.push(EVENT_ID);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(collected));
+
+          var img = document.getElementById('eventImage');
+          if (img) img.src = './assets/images/event-' + EVENT_ID + '-collected.png';
+        }
+
+        showStampPopup(already);
+      }
+
+      // 顯示獲得圖章彈窗
+      function showStampPopup(already) {
+        var title = document.getElementById('stampPopupTitle');
+        if (title) title.textContent = already ? '本圖章已蒐集' : '獲得新圖章';
+
+        var stampImage = document.getElementById('collectedStampImage');
+        if (stampImage) stampImage.src = './assets/images/event-' + EVENT_ID + '-collected.png';
+
+        var subtitle = document.getElementById('stampSubtitle');
+        var titleEl = document.querySelector('.event-title');
+        if (subtitle && titleEl) subtitle.textContent = titleEl.textContent;
+
+        var popup = document.getElementById('stampCollectedPopup');
+        if (popup) {
+          popup.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      // 點擊 OK 後回到集章卡列表
+      function onStampCollected() {
+        window.location.href = 'event-list.html';
+      }
+    </script>
+
+  </body>
+</html>
+<style>
+  .main{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px 24px;
+  }
+  .event-detail{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 327px;
+  }
+  .event-detail-img{
+    width: 256px;
+    height: auto;
+  }
+  .event-detail-text{
+    color: #666;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .event-detail-step{
+    border: 1px solid #0373BC33;
+    background: #82CFF433;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  .event-detail-step .step-item{
+    display: flex;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .event-detail-step .step-item .step-number{
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    gap: 4px;
+    color: #666;
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .event-detail-step .step-item .step-text{
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    flex: 1;
+    padding: 1.5px 0;
+  }
+</style>
