@@ -48,7 +48,7 @@ function parseScanResult(text) {
 //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('tbb-dream-factory:新密碼'))
 //     .then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('')))
 var REDEEM_SALT = 'tbb-dream-factory';
-var REDEEM_PASSWORD_HASH = '2100a79544e3bef72334759b02ce1abbcfae5c637790c80d1daf76f6add6cdc9';
+var REDEEM_PASSWORD_HASH = '79c3cf90760f22021f2556d146addf2d8c78530486f408e2dcef53cc1a73ee6f';
 
 // 問卷回傳端點；留空表示尚未串接後端，作答內容僅保存在本機
 // todo: 後端完成後填入 API 位址
