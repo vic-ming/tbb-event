@@ -288,15 +288,15 @@
   }
 
   .survey-title{
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     text-align: center;
     color: #527ACC;
   }
 
   .survey-intro{
-    color: #333333;
-    font-size: 16px;
+    color: #666;
+    font-size: 20px;
     text-align: left;
     line-height: 1.6;
   }
@@ -318,19 +318,19 @@
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    color: #333333;
-    font-size: 16px;
+    color: #666;
+    font-size: 20px;
     line-height: 1.5;
   }
 
   .survey-number{
     font-weight: 700;
-    color: #527ACC;
+    color: #666;
   }
 
   .survey-angle{
     width: 10px;
-    margin-top: 7px;
+    margin-top: 10px;
   }
 
   .survey-question-text{
@@ -338,9 +338,11 @@
   }
 
   .survey-options{
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     flex-wrap: wrap;
     gap: 8px;
+    padding-left: 30px;
   }
 
   .survey-option{
@@ -348,7 +350,7 @@
     min-width: calc(50% - 8px);
     padding: 8px 12px;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 18px;
     color: #527ACC;
     background-color: #FFFFFF;
     border: 2px solid #527ACC;
@@ -363,10 +365,10 @@
   }
 
   .survey-textarea{
-    width: 100%;
+    width: calc(100% - 30px);
     padding: 8px 12px;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 18px;
     color: #333333;
     background-color: #FFFFFF;
     border: 2px solid #527ACC;
@@ -374,6 +376,7 @@
     outline: none;
     resize: vertical;
     box-sizing: border-box;
+    margin-left: 30px;
   }
 
   .survey-error{
