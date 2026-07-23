@@ -1,0 +1,14 @@
+{
+  "name": "tbb-event-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "活動數據與兌獎驗證 API；只用 Node 內建模組，無外部相依",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

@@ -1,0 +1,37 @@
+# 部署在主機的 ~/tbb-event/docker-compose.yml
+#
+# 刻意「不」把 nginx 納入管理 —— 主機上的 nginx 容器是既有服務，
+# 由 compose 接管會導致它被重建、造成現有站台中斷。
+# 這裡只跑 API，再用 docker network connect 讓既有 nginx 連得到（免重啟）。
+
+services:
+  api:
+    build: ./server
+    image: tbb-event-api:latest
+    container_name: tbb-api
+    restart: always
+
+    environment:
+      # 密碼由同目錄的 .env 提供，不進版控
+      REDEEM_PASSWORD: ${REDEEM_PASSWORD:?請在 .env 設定 REDEEM_PASSWORD}
+      STATS_PASSWORD: ${STATS_PASSWORD:?請在 .env 設定 STATS_PASSWORD}
+      DB_PATH: /data/stats.db
+      TZ: Asia/Taipei
+
+    volumes:
+      # SQLite 資料落在主機，容器重建也不會遺失
+      - ./data:/data
+
+    # 只接內部網路，不對外開 port；外界一律經由 nginx
+    networks:
+      - tbb-net
+
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+networks:
+  tbb-net:
+    name: tbb-net

@@ -40,19 +40,13 @@ function parseScanResult(text) {
   return EVENTS[eventId] ? eventId : null;
 }
 
-// ---------- 兌獎密碼 ----------
-// 密碼以「salt:密碼」的 SHA-256 保存，避免明碼直接出現在原始碼中。
-// 注意：前端驗證只能擋住隨手查看原始碼的人，無法真正防弊，
-// todo: 正式上線請改由後端驗證並回傳兌換結果。
-// 更換密碼：於瀏覽器 Console 執行以下指令取得新的雜湊值後貼上
-//   crypto.subtle.digest('SHA-256', new TextEncoder().encode('tbb-dream-factory:新密碼'))
-//     .then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('')))
-var REDEEM_SALT = 'tbb-dream-factory';
-var REDEEM_PASSWORD_HASH = '79c3cf90760f22021f2556d146addf2d8c78530486f408e2dcef53cc1a73ee6f';
+// ---------- 後端 API ----------
+// 網站與 API 同網域，所以用相對路徑即可，沒有 CORS 問題。
+// 兌獎密碼與後台密碼都只存在伺服器環境變數，前端看不到也改不了。
+var API_BASE = '/api';
 
-// 問卷回傳端點；留空表示尚未串接後端，作答內容僅保存在本機
-// todo: 後端完成後填入 API 位址
-var SURVEY_ENDPOINT = '';
+// 問卷回傳端點（與網站同網域）
+var SURVEY_ENDPOINT = API_BASE + '/survey';
 
 // ---------- 本機儲存 ----------
 // 注意：狀態存在 localStorage，使用者清除瀏覽資料或改用無痕視窗即可重來，
@@ -62,7 +56,8 @@ var STORAGE_KEYS = {
   survey: 'surveyCompleted',
   surveyAnswers: 'surveyAnswers',
   redeemed: 'redeemed',
-  cookie: 'cookieConsent'
+  cookie: 'cookieConsent',
+  device: 'deviceId'
 };
 
 // ---------- 集章狀態 ----------
@@ -117,21 +112,101 @@ var Progress = {
   }
 };
 
-// ---------- 兌獎密碼驗證 ----------
+// ---------- 兌獎 ----------
+// 密碼驗證與「一支裝置只能兌換一次」都在後端完成，
+// 後端驗證通過的同時就記下兌獎紀錄，所以前端不需要另外送統計。
 var Redeem = {
-  // 回傳 Promise<boolean>；瀏覽器不支援 Web Crypto 時 reject（驗證失敗優先，不放行）
-  verify: function (password) {
-    if (!window.crypto || !window.crypto.subtle || !window.TextEncoder) {
-      return Promise.reject(new Error('crypto unavailable'));
+  // 回傳 Promise<{ ok, error }>
+  //   ok: true                    兌換成功
+  //   error: 'invalid_password'   密碼錯誤
+  //   error: 'already_redeemed'   這支裝置已經兌換過
+  //   error: 'too_many_attempts'  密碼錯太多次，暫時鎖定
+  //   error: 'network'            連不到伺服器
+  submit: function (password) {
+    return fetch(API_BASE + '/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        device: Analytics.deviceId(),
+        password: password
+      })
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        return { ok: !!data.ok, error: data.error || null };
+      })
+      .catch(function () {
+        // 連線失敗一律不放行
+        return { ok: false, error: 'network' };
+      });
+  }
+};
+
+// ---------- 活動數據 ----------
+// 記錄「瀏覽」人次；兌獎人次由後端在驗證密碼成功時自己記，前端不經手。
+// 以裝置為單位統計：deviceId 是隨機字串，不含任何個人資料。
+var ANALYTICS_ENDPOINT = API_BASE + '/log';
+
+var Analytics = {
+  // 取得（或建立）本裝置的代碼
+  deviceId: function () {
+    try {
+      var id = localStorage.getItem(STORAGE_KEYS.device);
+      if (!id) {
+        id = Analytics.createId();
+        localStorage.setItem(STORAGE_KEYS.device, id);
+      }
+      return id;
+    } catch (e) {
+      // 無痕模式等無法寫入的情況，退回單次性的代碼
+      return Analytics.createId();
+    }
+  },
+
+  createId: function () {
+    if (window.crypto && window.crypto.randomUUID) {
+      return window.crypto.randomUUID();
     }
 
-    var data = new TextEncoder().encode(REDEEM_SALT + ':' + password);
-    return window.crypto.subtle.digest('SHA-256', data).then(function (buffer) {
-      var hex = Array.prototype.map.call(new Uint8Array(buffer), function (byte) {
+    if (window.crypto && window.crypto.getRandomValues) {
+      var bytes = window.crypto.getRandomValues(new Uint8Array(16));
+      return Array.prototype.map.call(bytes, function (byte) {
         return byte.toString(16).padStart(2, '0');
       }).join('');
-      return hex === REDEEM_PASSWORD_HASH;
-    });
+    }
+
+    return 'x' + Date.now().toString(16) + Math.random().toString(16).slice(2, 10);
+  },
+
+  // 送出紀錄；統計失敗絕不影響活動流程，所以錯誤一律吞掉
+  send: function (type) {
+    try {
+      fetch(ANALYTICS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: type,
+          device: Analytics.deviceId()
+        }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {
+      // 舊瀏覽器沒有 fetch 就放棄記錄，不影響使用者
+    }
+  },
+
+  // 瀏覽：同一個瀏覽器工作階段只送一次（跨頁不重複計）
+  trackVisit: function () {
+    try {
+      if (sessionStorage.getItem('visitTracked') === 'true') return;
+      sessionStorage.setItem('visitTracked', 'true');
+    } catch (e) {
+      // sessionStorage 不可用時就照常記錄
+    }
+
+    Analytics.send('visit');
   }
 };
 
@@ -300,4 +375,5 @@ document.addEventListener('DOMContentLoaded', function () {
   Popup.init();
   Orientation.init();
   CookieConsent.show();
+  Analytics.trackVisit();
 });

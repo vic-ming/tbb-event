@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>活動數據</title>
+    <!-- 字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100..900&display=swap" rel="stylesheet">
+
+    <!-- 共用樣式 -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+
+    <!-- 本頁樣式 -->
+    <style>
+      .stats-main{
+        justify-content: flex-start;
+        overflow-y: auto;
+      }
+
+      .stats-title{
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        color: #527ACC;
+      }
+
+      .stats-login{
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .stats-input{
+        height: 44px;
+        padding: 0 12px;
+        font-family: inherit;
+        font-size: 18px;
+        color: #333;
+        background-color: #fff;
+        border: 2px solid #527ACC;
+        border-radius: 8px;
+        outline: none;
+        box-sizing: border-box;
+      }
+
+      .stats-error{
+        color: #DA3700;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      /* 總計卡片 */
+      .stats-summary{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        width: 100%;
+        max-width: 480px;
+      }
+
+      .stats-card{
+        background-color: #fff;
+        border: 1px solid #527ACC33;
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .stats-card-label{
+        font-size: 14px;
+        color: #666;
+      }
+
+      .stats-card-value{
+        font-size: 32px;
+        font-weight: 700;
+        color: #527ACC;
+        line-height: 1.3;
+      }
+
+      /* 每日明細；欄位較多時可橫向捲動 */
+      .stats-table-wrap{
+        width: 100%;
+        max-width: 480px;
+        overflow-x: auto;
+      }
+
+      .stats-table{
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        font-size: 16px;
+      }
+
+      .stats-table th,
+      .stats-table td{
+        border: 1px solid #527ACC33;
+        padding: 8px 10px;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .stats-table th{
+        background-color: #E8F2FB;
+        color: #527ACC;
+        font-weight: 700;
+      }
+
+      .stats-table td:first-child{
+        text-align: left;
+      }
+
+      .stats-updated{
+        font-size: 14px;
+        color: #666;
+        text-align: center;
+        line-height: 1.6;
+      }
+
+      .stats-empty{
+        color: #666;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      .stats-actions{
+        display: flex;
+        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+      }
+
+      .stats-actions .common-button{
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- header -->
+      <div class="header">
+        <img class="logo-1" src="./assets/images/logo-1.png" alt="logo">
+        <img class="logo-2" src="./assets/images/logo-2.png" alt="logo">
+      </div>
+
+      <main class="main page-main stats-main">
+        <div class="stats-title">活動數據</div>
+
+        <!-- 登入 -->
+        <div class="stats-login" id="loginBox">
+          <input class="stats-input" type="password" id="passwordInput" placeholder="請輸入後台密碼" autocomplete="current-password">
+          <button class="common-button" onclick="loadStats()">查詢</button>
+          <p class="stats-error" id="errorText" style="display: none;"></p>
+        </div>
+
+        <!-- 結果 -->
+        <div class="stats-summary" id="summaryBox" style="display: none;">
+          <div class="stats-card">
+            <div class="stats-card-label">總瀏覽人次</div>
+            <div class="stats-card-value" id="totalVisitors">0</div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-card-label">總兌獎人次</div>
+            <div class="stats-card-value" id="totalRedeems">0</div>
+          </div>
+        </div>
+
+        <div class="stats-table-wrap" id="tableBox" style="display: none;">
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>瀏覽人次</th>
+                <th>兌獎人次</th>
+                <th>總瀏覽次數</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <p class="stats-empty" id="emptyText" style="display: none;">目前還沒有任何資料</p>
+
+        <p class="stats-updated" id="updatedText" style="display: none;"></p>
+
+        <div class="stats-actions" id="actionBox" style="display: none;">
+          <button class="common-button" onclick="loadStats()">重新整理</button>
+          <button class="common-button" id="exportButton" onclick="exportExcel()">匯出 Excel</button>
+        </div>
+
+        <p class="stats-error" id="exportError" style="display: none;"></p>
+      </main>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="footer-line"> </div>
+      </div>
+    </div>
+
+    <!-- 匯出用：xlsx 產生器與問卷題目定義（題目與 survey.html 共用同一份） -->
+    <script src="./assets/js/xlsx.js"></script>
+    <script src="./assets/js/survey-questions.js"></script>
+    <script>
+      // 本頁不載入 app.js：後台不需要集章、Cookie 或橫向鎖定，也不該被記為瀏覽人次
+
+      // 與網站同網域，直接走相對路徑
+      var STATS_ENDPOINT = '/api/stats';
+
+      var currentPassword = '';
+
+      function loadStats() {
+        var input = document.getElementById('passwordInput');
+        var password = currentPassword || (input ? input.value.trim() : '');
+
+        if (!password) {
+          showError('請輸入密碼');
+          return;
+        }
+
+        hideError();
+
+        fetch(STATS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: password })
+        })
+          .then(function (response) {
+            // 密碼錯誤與鎖定都回 JSON，交給下一段判斷
+            return response.json().catch(function () {
+              throw new Error('讀取失敗，請稍後再試');
+            });
+          })
+          .then(function (data) {
+            if (!data.ok) {
+              if (data.error === 'unauthorized') throw new Error('密碼錯誤');
+              if (data.error === 'too_many_attempts') throw new Error('密碼錯誤次數過多，請稍候再試');
+              throw new Error('讀取失敗，請稍後再試');
+            }
+
+            currentPassword = password;
+            render(data);
+          })
+          .catch(function (error) {
+            currentPassword = '';
+            showError(error.message || '讀取失敗，請稍後再試');
+          });
+      }
+
+      function render(data) {
+        var days = data.days || [];
+        var total = data.total || { visitors: 0, redeems: 0, pageviews: 0 };
+
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('actionBox').style.display = 'flex';
+
+        document.getElementById('totalVisitors').textContent = total.visitors;
+        document.getElementById('totalRedeems').textContent = total.redeems;
+        document.getElementById('summaryBox').style.display = 'grid';
+
+        var body = document.getElementById('tableBody');
+        body.innerHTML = '';
+
+        days.forEach(function (day) {
+          var row = document.createElement('tr');
+          [day.date, day.visitors, day.redeems, day.pageviews].forEach(function (value) {
+            var cell = document.createElement('td');
+            cell.textContent = value;
+            row.appendChild(cell);
+          });
+          body.appendChild(row);
+        });
+
+        document.getElementById('tableBox').style.display = days.length ? 'block' : 'none';
+        document.getElementById('emptyText').style.display = days.length ? 'none' : 'block';
+
+        var updated = document.getElementById('updatedText');
+        updated.textContent = '資料最後更新時間：' + formatTime(data.updatedAt) +
+          '\n（查詢時間：' + formatTime(new Date().toISOString()) + '）';
+        updated.style.whiteSpace = 'pre-line';
+        updated.style.display = 'block';
+      }
+
+      // 2026-07-21T15:40:12+08:00 → 2026/07/21 15:40:12
+      function formatTime(iso) {
+        if (!iso) return '尚無資料';
+
+        var date = new Date(iso);
+        if (isNaN(date.getTime())) return iso;
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        return date.getFullYear() + '/' + pad(date.getMonth() + 1) + '/' + pad(date.getDate()) +
+          ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+      }
+
+      function showError(message) {
+        var error = document.getElementById('errorText');
+        error.textContent = message;
+        error.style.display = 'block';
+
+        document.getElementById('loginBox').style.display = 'flex';
+      }
+
+      function hideError() {
+        document.getElementById('errorText').style.display = 'none';
+      }
+
+      // ---------- 匯出 Excel ----------
+
+      // 重新向後端要一次資料（帶 surveys: true 取得完整作答），確保匯出的是最新數字
+      function exportExcel() {
+        var button = document.getElementById('exportButton');
+        var error = document.getElementById('exportError');
+
+        if (error) error.style.display = 'none';
+        if (button) { button.disabled = true; button.textContent = '匯出中…'; }
+
+        fetch(STATS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: currentPassword, surveys: true })
+        })
+          .then(function (response) { return response.json(); })
+          .then(function (data) {
+            if (!data.ok) throw new Error('讀取失敗，請重新查詢後再試');
+
+            downloadXlsx(buildSheets(data), fileName());
+
+            // 匯出同時把畫面數字更新為最新狀態
+            render(data);
+          })
+          .catch(function (e) {
+            if (error) {
+              error.textContent = e.message || '匯出失敗，請稍後再試';
+              error.style.display = 'block';
+            }
+          })
+          .then(function () {
+            if (button) { button.disabled = false; button.textContent = '匯出 Excel'; }
+          });
+      }
+
+      // 組出兩張工作表：每日數據、問卷作答
+      function buildSheets(data) {
+        var days = data.days || [];
+        var total = data.total || { visitors: 0, redeems: 0, pageviews: 0 };
+
+        // 第一張：每日數據，最後加總計列
+        var dailyRows = [['日期', '瀏覽人次', '總瀏覽次數', '兌獎人次']];
+
+        days.forEach(function (day) {
+          dailyRows.push([day.date, day.visitors, day.pageviews, day.redeems]);
+        });
+
+        dailyRows.push([]);
+        // 總計為全期間不重複裝置數，並非每日相加，於報表中註明避免誤解
+        dailyRows.push(['總計（不重複裝置）', total.visitors, total.pageviews, total.redeems]);
+        dailyRows.push([]);
+        dailyRows.push(['資料匯出時間', formatTime(new Date().toISOString())]);
+        dailyRows.push(['最後一筆紀錄時間', formatTime(data.updatedAt)]);
+
+        var sheets = [{ name: '每日數據', rows: dailyRows }];
+
+        // 第二張：問卷作答，一位填答者一列
+        sheets.push({ name: '問卷作答', rows: buildSurveyRows(data.surveys || []) });
+
+        return sheets;
+      }
+
+      function buildSurveyRows(surveys) {
+        var header = ['填答時間', '裝置代碼'];
+        surveyQuestions.forEach(function (question) {
+          header.push(question.text);
+        });
+        header.push('其他作答');
+
+        var rows = [header];
+
+        surveys.forEach(function (entry) {
+          var answers = entry.answers || {};
+          var row = [formatTime(entry.createdAt), entry.device];
+
+          surveyQuestions.forEach(function (question) {
+            var value = answers[question.id];
+
+            // 複選題以頓號串起，在儲存格內才好閱讀
+            if (Array.isArray(value)) {
+              row.push(value.join('、'));
+            } else {
+              row.push(value === undefined || value === null ? '' : String(value));
+            }
+          });
+
+          // 題目異動後，舊資料若有對不上的答案仍保留下來，不會靜默遺失
+          var known = {};
+          surveyQuestions.forEach(function (q) { known[q.id] = true; });
+
+          var extras = Object.keys(answers).filter(function (key) { return !known[key]; });
+          row.push(extras.map(function (key) {
+            var value = answers[key];
+            return key + '=' + (Array.isArray(value) ? value.join('、') : value);
+          }).join(' | '));
+
+          rows.push(row);
+        });
+
+        if (surveys.length === 0) {
+          rows.push(['（目前沒有任何問卷作答）']);
+        }
+
+        return rows;
+      }
+
+      // 活動數據_20260723_1530.xlsx
+      function fileName() {
+        var now = new Date();
+        function pad(n) { return String(n).padStart(2, '0'); }
+
+        return '活動數據_' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) +
+          '_' + pad(now.getHours()) + pad(now.getMinutes()) + '.xlsx';
+      }
+
+      function downloadXlsx(sheets, name) {
+        var blob = buildXlsx(sheets);
+        var url = URL.createObjectURL(blob);
+
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // 立刻釋放會讓部分瀏覽器來不及下載，延遲回收
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      }
+
+      // 按 Enter 直接查詢
+      document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('passwordInput').addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') loadStats();
+        });
+      });
+    </script>
+  </body>
+</html>

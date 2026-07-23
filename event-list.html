@@ -100,7 +100,7 @@
           <button class="popup-close" onclick="closePopup()">×</button>
           <h2 class="popup-title">兌換獎品</h2>
           <div class="popup-content-box">
-            <p class="popup-message">感謝您完成問卷，請前往服務臺領取獎品</p>
+            <p class="popup-message">感謝您完成問卷，<br>請前往服務臺領取獎品</p>
           </div>
           <button class="popup-button" onclick="showRedeemPasswordPopup()">抵達服務臺</button>
         </div>
@@ -178,24 +178,34 @@
         // 驗證為非同步，先鎖住按鈕避免連點
         if (button) button.disabled = true;
 
-        Redeem.verify(password)
-          .then(function (isValid) {
-            if (!isValid) {
-              showRedeemError('密碼錯誤，請重新輸入');
-              return;
-            }
+        // 密碼與「一裝置一次」都由後端判定，前端只負責呈現結果
+        Redeem.submit(password).then(function (result) {
+          if (button) button.disabled = false;
 
+          if (result.ok) {
             if (error) error.style.display = 'none';
             Popup.close();
             markAsRedeemed();
-          })
-          .catch(function () {
-            // Web Crypto 需要 HTTPS 或 localhost，不支援時一律不放行
-            showRedeemError('此瀏覽器無法驗證密碼，請改用 HTTPS 開啟本頁');
-          })
-          .then(function () {
-            if (button) button.disabled = false;
-          });
+            return;
+          }
+
+          // 後端說這支裝置已兌換過：以後端為準，同步本機狀態
+          if (result.error === 'already_redeemed') {
+            Popup.close();
+            markAsRedeemed();
+            Popup.show('redeemedPopup');
+            return;
+          }
+
+          showRedeemError(redeemErrorMessage(result.error));
+        });
+      }
+
+      // 後端錯誤代碼 → 給現場人員看的訊息
+      function redeemErrorMessage(code) {
+        if (code === 'too_many_attempts') return '密碼錯誤次數過多，請稍候再試';
+        if (code === 'network') return '連線失敗，請確認網路後再試一次';
+        return '密碼錯誤，請重新輸入';
       }
 
       function showRedeemError(message) {
@@ -207,6 +217,7 @@
       }
 
       // 兌換完成，切換為已領取狀態
+      // 兌獎人次由後端在驗證成功時記錄，這裡不再另外送統計
       function markAsRedeemed() {
         Progress.setRedeemed();
 
