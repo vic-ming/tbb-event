@@ -352,10 +352,47 @@ var Orientation = {
     document.body.appendChild(popup);
   },
 
+  // 是否正在輸入文字
+  // iOS 鍵盤彈出會改變視窗高度並觸發 resize，若此時判斷方向會誤判成橫向，
+  // 導致使用者一點輸入框就跳出「請直向使用」。輸入期間一律不重新判斷。
+  isTyping: function () {
+    var el = document.activeElement;
+    if (!el) return false;
+
+    var tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable === true;
+  },
+
+  // 判斷是否為橫向
+  // 刻意不用 innerWidth / innerHeight：這兩個值會被鍵盤、網址列收合、
+  // 頁面縮放影響，在 iOS 上尤其不可靠。優先採用裝置方向 API。
+  isLandscape: function () {
+    if (!Orientation.isMobile()) return false;
+
+    // 標準 API（iOS 16.4+ 與各版 Android 皆支援）
+    var orientation = window.screen && window.screen.orientation;
+    if (orientation && typeof orientation.type === 'string') {
+      return orientation.type.indexOf('landscape') === 0;
+    }
+
+    // 舊版 iOS：0 / 180 為直向，±90 為橫向
+    if (typeof window.orientation === 'number') {
+      return Math.abs(window.orientation) === 90;
+    }
+
+    // 媒體查詢依版面視窗計算，仍比 innerHeight 穩定
+    if (window.matchMedia) {
+      return window.matchMedia('(orientation: landscape)').matches;
+    }
+
+    return window.innerWidth > window.innerHeight;
+  },
+
   // 行動裝置橫向時鎖定畫面（顯示／隱藏交給 CSS 的 .landscape-locked）
   check: function () {
-    var isLandscape = Orientation.isMobile() && window.innerWidth > window.innerHeight;
-    document.body.classList.toggle('landscape-locked', isLandscape);
+    if (Orientation.isTyping()) return;
+
+    document.body.classList.toggle('landscape-locked', Orientation.isLandscape());
   },
 
   init: function () {
@@ -365,6 +402,11 @@ var Orientation = {
     window.addEventListener('resize', Orientation.check);
     window.addEventListener('orientationchange', function () {
       // 方向變更後尺寸稍晚才更新，延遲再判斷一次
+      setTimeout(Orientation.check, 100);
+    });
+
+    // 結束輸入後補判一次：避免使用者在打字期間轉了方向而沒被鎖定
+    document.addEventListener('focusout', function () {
       setTimeout(Orientation.check, 100);
     });
   }
