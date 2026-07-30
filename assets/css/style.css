@@ -32,7 +32,8 @@ button {
 
 .container{
   width: 100%;
-  height: 100%;
+  height: 100%;        /* 舊瀏覽器後備 */
+  height: 100dvh;      /* 動態視窗高度：會跟著手機工具列伸縮，避免底部被裁切 */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -100,6 +101,7 @@ button {
 .main{
   width: 100%;
   flex: 1;
+  min-height: 0;   /* 允許內部捲動區縮小，長內容才不會把 footer 頂出畫面 */
   position: relative;
   box-sizing: border-box;
   display: flex;
@@ -732,7 +734,7 @@ body.has-cookie-consent .header {
   max-width: 327px;
 }
 .event-detail-img{
-  width: 256px;
+  width: 30vh;
   height: auto;
 }
 .event-detail-step{
